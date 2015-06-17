@@ -1,0 +1,118 @@
+﻿	<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+		<PropertyGroup>
+			<ProjectGuid>{7FC7B1A2-EC69-49C7-9C63-A4BC67D42E8F}</ProjectGuid>
+			<ProjectVersion>13.4</ProjectVersion>
+			<FrameworkType>VCL</FrameworkType>
+			<MainSource>DelphiXE.dpr</MainSource>
+			<Base>True</Base>
+			<Config Condition="'$(Config)'==''">Base</Config>
+			<Platform Condition="'$(Platform)'==''">Win32</Platform>
+			<TargetedPlatforms>1</TargetedPlatforms>
+			<AppType>Library</AppType>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Base)'=='true') or '$(Base_Win64)'!=''">
+			<Base_Win64>true</Base_Win64>
+			<CfgParent>Base</CfgParent>
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Base)'=='true') or '$(Base_Win32)'!=''">
+			<Base_Win32>true</Base_Win32>
+			<CfgParent>Base</CfgParent>
+			<Base>true</Base>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Base)'!=''">
+			<PostBuildEvent><![CDATA[copy ..\*.config ..\..\..\bin\plugins\guestpad\ /y
+$(PostBuildEvent)]]></PostBuildEvent>
+			<Manifest_File>None</Manifest_File>
+			<VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0</VerInfo_Keys>
+			<VerInfo_Locale>1046</VerInfo_Locale>
+			<DCC_UsePackage>DBXInterBaseDriver;DataSnapServer;DataSnapCommon;DbxCommonDriver;dbxcds;CustomIPTransport;dsnap;IndyCore;IPIndyImpl;bindcompfmx;dbrtl;bindcomp;inetdb;xmlrtl;soaprtl;bindengine;DBXInformixDriver;DBXFirebirdDriver;inet;DBXSybaseASADriver;dbexpress;fmx;IndySystem;DataSnapClient;DataSnapProviderClient;DBXOracleDriver;fmxase;inetdbxpress;rtl;DbxClientDriver;IndyProtocols;DBXMySQLDriver;fmxobj;fmxdae;DataSnapIndy10ServerTransport;$(DCC_UsePackage)</DCC_UsePackage>
+			<DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
+			<GenDll>true</GenDll>
+			<DCC_DcuOutput>..\dcu</DCC_DcuOutput>
+			<DCC_ExeOutput>..\..\..\bin\plugins\guestpad</DCC_ExeOutput>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Base_Win64)'!=''">
+			<DCC_UsePackage>cxLibraryRS16;dxSkinSevenRS16;RaizeComponentsVcl;dxPsPrVwAdvRS16;dxSkinSummer2008RS16;dxPSCoreRS16;cxPivotGridOLAPRS16;dxPScxGridLnkRS16;dxPScxTLLnkRS16;cxPageControlRS16;dxSkinVS2010RS16;vclimg;dxSkinDevExpressStyleRS16;dxSkinWhiteprintRS16;dxComnRS16;vcldb;dxSkinBlackRS16;dxADOServerModeRS16;dxBarExtDBItemsRS16;dxSkinXmas2008BlueRS16;dxSkinOffice2007BlueRS16;dxSkinOffice2007GreenRS16;cxDataRS16;cxPageControldxBarPopupMenuRS16;dxDockingRS16;dxPSDBTeeChartRS16;dxPSLnksRS16;dxBarExtItemsRS16;dxPSTeeChartRS16;dxPSdxLCLnkRS16;cxVerticalGridRS16;dxSkinSharpRS16;dxSkinOffice2007BlackRS16;dxSkinBlueprintRS16;dxPScxExtCommonRS16;DBXOdbcDriver;dxSkinFoggyRS16;dxSkinDarkSideRS16;dxSkinscxPCPainterRS16;vclactnband;dxServerModeRS16;bindcompvcl;vclie;dxSkinSilverRS16;dsnapcon;dcldxSkinsCoreRS16;dxSkinLilianRS16;vclx;dxSkinValentineRS16;dxGDIPlusRS16;dxSkinSharpPlusRS16;dxPScxVGridLnkRS16;dxLayoutControlRS16;dxPScxPivotGridLnkRS16;dxCoreRS16;cxExportRS16;dxBarRS16;dxSkinCoffeeRS16;cxTreeListdxBarPopupMenuRS16;TeeDB;dxDBXServerModeRS16;dxRibbonRS16;DBXSybaseASEDriver;cxTreeListRS16;dxSkinOffice2007SilverRS16;dxSkinsdxRibbonPainterRS16;vcldsnap;dxSkinBlueRS16;DBXDb2Driver;dxSkinDarkRoomRS16;vcl;dxSkinDevExpressDarkStyleRS16;DBXMSSQLDriver;webdsnap;dxSkinsdxDLPainterRS16;dxSkinTheAsphaltWorldRS16;dxSkinOffice2010BlackRS16;dxSkinMoneyTwinsRS16;dxSkinPumpkinRS16;adortl;dxSkinHighContrastRS16;dxSkiniMaginaryRS16;dxSkinLondonLiquidSkyRS16;dxSkinsdxBarPainterRS16;Tee;dxSkinGlassOceansRS16;dxSkinLiquidSkyRS16;dxSkinsCoreRS16;cxPivotGridChartRS16;dxPScxCommonRS16;dxmdsRS16;dxPSPrVwRibbonRS16;cxGridRS16;cxEditorsRS16;TeeUI;cxPivotGridRS16;dxSkinSevenClassicRS16;dxSkinOffice2010SilverRS16;vcltouch;websnap;dxSkinOffice2007PinkRS16;VclSmp;dxSkinSpringTimeRS16;dxTabbedMDIRS16;DataSnapConnectors;dxSkinStardustRS16;dxSkinOffice2010BlueRS16;dxThemeRS16;dxPScxPCProdRS16;dxSkinCaramelRS16;dxSkinMcSkinRS16;dxBarDBNavRS16;$(DCC_UsePackage)</DCC_UsePackage>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(Base_Win32)'!=''">
+			<Debugger_RunParams>-debugview -arquivolog  -sem_relatorios</Debugger_RunParams>
+			<DCC_UnitSearchPath>$(CLIB32);$(CBPL32);$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+			<DCC_DcuOutput>..\dcu</DCC_DcuOutput>
+			<Debugger_HostApplication>D:\Projetos\colibri-8\colibriPAF.exe</Debugger_HostApplication>
+			<Debugger_CWD>D:\projetos\Colibri\bin\plugins\fiscal</Debugger_CWD>
+			<Debugger_DebugSourcePath>D:\projetos\Colibri\;$(Debugger_DebugSourcePath)</Debugger_DebugSourcePath>
+			<DCC_ExeOutput>..\..\..\bin\plugins\guestpad</DCC_ExeOutput>
+			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+			<DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
+			<DCC_UsePackage>JvGlobus;JvMM;cxLibraryRS16;dclRBADO1416;ipstudiowindataset;dxSkinSevenRS16;TxCmn;RaizeComponentsVcl;dxPsPrVwAdvRS16;dxSkinSummer2008RS16;dxPSCoreRS16;cxPivotGridOLAPRS16;dxPScxGridLnkRS16;dxPScxTLLnkRS16;rbRAP1416;rbRCL1416;cxPageControlRS16;Python;JvDotNetCtrls;girassol.sintegra;dxSkinVS2010RS16;vclimg;dxSkinDevExpressStyleRS16;dxSkinWhiteprintRS16;dxComnRS16;vcldb;dxSkinBlackRS16;rbRTL1416;dxADOServerModeRS16;dxBarExtDBItemsRS16;rbUSER1416;dxSkinXmas2008BlueRS16;dclRBBDE1416;rbCIDE1416;dxSkinOffice2007BlueRS16;CloudService;dxSkinOffice2007GreenRS16;girassol.comum;FmxTeeUI;cxDataRS16;cxPageControldxBarPopupMenuRS16;dxDockingRS16;dxPSDBTeeChartRS16;TxToo;JvDB;dxPSLnksRS16;dxBarExtItemsRS16;JclDeveloperTools;dxscene;dxPSTeeChartRS16;dxPSdxLCLnkRS16;cxVerticalGridRS16;dxSkinSharpRS16;dxSkinOffice2007BlackRS16;dxSkinBlueprintRS16;dxPScxExtCommonRS16;vcldbx;dclRBDBE1416;JvPluginSystem;DBXOdbcDriver;dxSkinFoggyRS16;ComDrv;dxSkinDarkSideRS16;intrawebdb_120_160;dxSkinscxPCPainterRS16;vclactnband;FMXTee;dxServerModeRS16;bindcompvcl;Jcl;vclie;rbIDE1416;agile.engine;rbDBE1416;dxSkinSilverRS16;ipstudiowinclient;dsnapcon;dcldxSkinsCoreRS16;dxSkinLilianRS16;vclx;dxSkinValentineRS16;dxGDIPlusRS16;dxSkinSharpPlusRS16;JvBDE;dxPScxVGridLnkRS16;dxLayoutControlRS16;dxPScxPivotGridLnkRS16;dxCoreRS16;cxExportRS16;dxBarRS16;AbbreviaVCL;dxSkinCoffeeRS16;cxTreeListdxBarPopupMenuRS16;TeeDB;JvDlgs;dxDBXServerModeRS16;Rave100VCL;inetdbbde;dxRibbonRS16;DBXSybaseASEDriver;PythonVCL;cxTreeListRS16;dxSkinOffice2007SilverRS16;dxSkinsdxRibbonPainterRS16;vcldsnap;dxSkinBlueRS16;DBXDb2Driver;Intraweb_120_160;JvCore;dxSkinDarkRoomRS16;TxAdo;vcl;rbTCUI1416;dxSkinDevExpressDarkStyleRS16;DBXMSSQLDriver;dclRBE1416;webdsnap;dxSkinsdxDLPainterRS16;dxSkinTheAsphaltWorldRS16;rbRIDE1416;rbDAD1416;dxSkinOffice2010BlackRS16;dxSkinMoneyTwinsRS16;dxSkinPumpkinRS16;adortl;TxCtl;JvDocking;agile.display;xmldset;rbUSERDesign1416;dxSkinHighContrastRS16;dxSkiniMaginaryRS16;RaizeComponentsVclDb;dxSkinLondonLiquidSkyRS16;dxSkinsdxBarPainterRS16;Tee;JclContainers;dxSkinGlassOceansRS16;rbDBDE1416;dxSkinLiquidSkyRS16;dxSkinsCoreRS16;G114;JvSystem;svnui;rbTC1416;cxPivotGridChartRS16;dxPScxCommonRS16;dxmdsRS16;dxPSPrVwRibbonRS16;JvControls;cxGridRS16;agile.acesso;cxEditorsRS16;TeeUI;cxPivotGridRS16;ipstudiowin;dxSkinSevenClassicRS16;JvStdCtrls;JvCustom;JvPageComps;rbADO1416;dxSkinOffice2010SilverRS16;vcltouch;rbBDE1416;websnap;dxSkinOffice2007PinkRS16;agile.suporte;PngComponents;VclSmp;dxSkinSpringTimeRS16;dxTabbedMDIRS16;rbDB1416;DataSnapConnectors;dxSkinStardustRS16;dxSkinOffice2010BlueRS16;dxThemeRS16;TxDb;dxPScxPCProdRS16;JclVcl;agile.acesso.vcl;svn;dxSkinCaramelRS16;agile.biometria;bdertl;dxSkinMcSkinRS16;dxBarDBNavRS16;$(DCC_UsePackage)</DCC_UsePackage>
+			<VerInfo_Locale>1033</VerInfo_Locale>
+			<VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+		</PropertyGroup>
+		<ItemGroup>
+			<DelphiCompile Include="$(MainSource)">
+				<MainSource>MainSource</MainSource>
+			</DelphiCompile>
+			<DCCReference Include="..\src\plugin.api.pas"/>
+			<DCCReference Include="..\ui\form.config.pas">
+				<Form>frmConfig</Form>
+			</DCCReference>
+			<BuildConfiguration Include="Base">
+				<Key>Base</Key>
+			</BuildConfiguration>
+		</ItemGroup>
+		<ProjectExtensions>
+			<Borland.Personality>Delphi.Personality.12</Borland.Personality>
+			<Borland.ProjectType/>
+			<BorlandProject>
+				<Delphi.Personality>
+					<VersionInfo>
+						<VersionInfo Name="IncludeVerInfo">False</VersionInfo>
+						<VersionInfo Name="AutoIncBuild">False</VersionInfo>
+						<VersionInfo Name="MajorVer">1</VersionInfo>
+						<VersionInfo Name="MinorVer">0</VersionInfo>
+						<VersionInfo Name="Release">0</VersionInfo>
+						<VersionInfo Name="Build">0</VersionInfo>
+						<VersionInfo Name="Debug">False</VersionInfo>
+						<VersionInfo Name="PreRelease">False</VersionInfo>
+						<VersionInfo Name="Special">False</VersionInfo>
+						<VersionInfo Name="Private">False</VersionInfo>
+						<VersionInfo Name="DLL">False</VersionInfo>
+						<VersionInfo Name="Locale">1046</VersionInfo>
+						<VersionInfo Name="CodePage">1252</VersionInfo>
+					</VersionInfo>
+					<VersionInfoKeys>
+						<VersionInfoKeys Name="CompanyName"/>
+						<VersionInfoKeys Name="FileDescription"/>
+						<VersionInfoKeys Name="FileVersion">1.0.0.0</VersionInfoKeys>
+						<VersionInfoKeys Name="InternalName"/>
+						<VersionInfoKeys Name="LegalCopyright"/>
+						<VersionInfoKeys Name="LegalTrademarks"/>
+						<VersionInfoKeys Name="OriginalFilename"/>
+						<VersionInfoKeys Name="ProductName"/>
+						<VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys>
+						<VersionInfoKeys Name="Comments"/>
+						<VersionInfoKeys Name="LastCompiledTime">02/06/2014 15:26:47</VersionInfoKeys>
+					</VersionInfoKeys>
+					<Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dcloffice2k160.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+					</Excluded_Packages>
+					<Source>
+						<Source Name="MainSource">DelphiXE.dpr</Source>
+					</Source>
+				</Delphi.Personality>
+				<Deployment/>
+				<Platforms>
+					<Platform value="Win64">False</Platform>
+					<Platform value="OSX32">False</Platform>
+					<Platform value="Win32">True</Platform>
+				</Platforms>
+			</BorlandProject>
+			<ProjectFileVersion>12</ProjectFileVersion>
+		</ProjectExtensions>
+		<Import Condition="Exists('$(BDS)\Bin\CodeGear.Delphi.Targets')" Project="$(BDS)\Bin\CodeGear.Delphi.Targets"/>
+		<Import Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')" Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj"/>
+	</Project>

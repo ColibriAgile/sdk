@@ -11,3 +11,11 @@ ipch
 /examples/VisualC/PluginC/*.map
 *.pyc
 /SCRIPTS
+/examples/VisualC/PluginC.opensdf
+__history
+/examples/DelphiXE/prj/*.skincfg
+/examples/DelphiXE/prj/*.local
+/examples/DelphiXE/prj/*.identcache
+/examples/DelphiXE/dcu
+/examples/DelphiXE/prj/DelphiXE.res
+/examples/DelphiXE/prj/DelphiXE.col
