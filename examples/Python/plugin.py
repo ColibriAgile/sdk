@@ -8,14 +8,15 @@ from colibri_mod import callback, assinar_evento, obter_configs, gravar_config
 PLUGIN_NAME = 'Teste'
 PLUGIN_VERSION = '1.0.0.0'
 
-# variavel privada com o erro da notificaçao
+# Variavel privada com o erro ocorrido na notificaçao
 __last_error = ''
 
 # Logger para testes
-logger = criar_logger(__name__, os.path.join(obter_caminho_plugin(), PLUGIN_NAME + '.log'))
+log_file_name = os.path.join(obter_caminho_plugin(), PLUGIN_NAME + '.log')
+logger = criar_logger(__name__, log_file_name)
 
 
-# Funções, opcionais, para
+# Funções opcionais: Implemente as que desejar
 def ativar(maquina):
     logger.debug('plugin ativado na maquina: %d', maquina)
 

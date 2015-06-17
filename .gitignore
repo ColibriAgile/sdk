@@ -9,3 +9,5 @@
 Release
 ipch
 /examples/VisualC/PluginC/*.map
+*.pyc
+/SCRIPTS
