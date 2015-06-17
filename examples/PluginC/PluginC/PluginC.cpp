@@ -56,12 +56,21 @@ PLUGINC_API void calling Configurar(PChar dictMaquinas)
 {
 }
 
+PLUGINC_API void calling ConfigurarDB(PChar servidor, PChar nanco, PChar usuario, PChar senha, PChar provedor)
+{
+}
+
 PLUGINC_API void calling Desativar(int umaMaquina)
 {
 }
 
 PLUGINC_API void calling RegistrarAssinaturas(ProcAssinarEvento proc)
 {
+}
+
+PLUGINC_API PChar calling ObterMacro (PChar umaMacro)
+{
+	return NULL;
 }
 
 PLUGINC_API PChar calling VerificarVersao(PChar informacao)

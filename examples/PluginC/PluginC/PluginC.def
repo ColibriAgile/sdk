@@ -4,12 +4,14 @@ EXPORTS
     AtribuirObtencaoDeFuncoes
     Atualizar
     Configurar
+	ConfigurarDB
     Desativar
     Notificar
     ObterErro
     ObterNome
     ObterVersao
     RegistrarAssinaturas
+	ObterMacro
     VerificarVersao
 
  
