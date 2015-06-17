@@ -1,5 +1,3 @@
-# Files
-
 #Editors
 *.sublime*
 .idea
@@ -7,6 +5,7 @@
 # IDE
 *.sdf
 Release
+Debug
 ipch
 /examples/VisualC/PluginC/*.map
 *.pyc
