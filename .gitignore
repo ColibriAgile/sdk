@@ -1,0 +1,11 @@
+# Files
+
+#Editors
+*.sublime*
+.idea
+
+# IDE
+*.sdf
+Release
+ipch
+/examples/VisualC/PluginC/*.map
