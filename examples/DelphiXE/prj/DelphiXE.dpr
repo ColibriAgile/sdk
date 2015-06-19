@@ -14,18 +14,18 @@ uses
 
 exports
   Ativar,
+  AtribuirObtencaoDeFuncoes,
   Atualizar,
-  Desativar,
   Configurar,
   ConfigurarDB,
-  RegistrarAssinaturas,
+  Desativar,
+  Notificar,
   ObterErro,
-  ObterVersao,
-  ObterNome,
-  AtribuirObtencaoDeFuncoes,
-  VerificarVersao,
   ObterMacro,
-  Notificar;
+  ObterNome,
+  ObterVersao,
+  RegistrarAssinaturas,
+  VerificarVersao;
 
 var
   SaveDllProc: Pointer;

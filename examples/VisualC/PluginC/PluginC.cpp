@@ -12,37 +12,38 @@ ProcLiberarBuffer LiberarBuffer;
 ProcObterFuncao ObterFuncao;
 
 
-PLUGINC_API int __stdcall Atualizar(PChar * retorno)
+int __stdcall Atualizar(wchar_t** resultado)
 {
+	resultado = NULL;
 	return 1;
 }
 
-PLUGINC_API int __stdcall Notificar(PChar evento, PChar informacao, PChar * retorno)
+int __stdcall Notificar(wchar_t* evento, wchar_t* informacao, wchar_t** resultado)
 {
-	*retorno = CopiarBuffer(L"");
+	*resultado = CopiarBuffer(L"");
 	return 1;
 }
 
-PLUGINC_API PChar __stdcall ObterErro()
+wchar_t* __stdcall ObterErro()
 {
 	return CopiarBuffer(L"");
 }
 
-PLUGINC_API PChar __stdcall ObterNome()
+wchar_t* __stdcall ObterNome()
 {
 	return CopiarBuffer(L"PluginC");
 }
 
-PLUGINC_API PChar __stdcall ObterVersao()
+wchar_t* __stdcall ObterVersao()
 {
 	return CopiarBuffer(L"1.0.0.0");
 }
 
-PLUGINC_API void __stdcall Ativar(int umaMaquina)
+void __stdcall Ativar(int umaMaquina)
 {
 }
 
-PLUGINC_API void __stdcall AtribuirObtencaoDeFuncoes(ProcObterFuncao _ObterFuncao)
+void __stdcall AtribuirObtencaoDeFuncoes(ProcObterFuncao _ObterFuncao)
 {
 	ObterFuncao = _ObterFuncao;
 	CallBack = (ProcCallBack) ObterFuncao(L"CallBack");
@@ -52,28 +53,30 @@ PLUGINC_API void __stdcall AtribuirObtencaoDeFuncoes(ProcObterFuncao _ObterFunca
 	LiberarBuffer = (ProcLiberarBuffer) ObterFuncao(L"LiberarBuffer");
 }
 
-PLUGINC_API void __stdcall Configurar(PChar dictMaquinas)
+void __stdcall Configurar(wchar_t* dictMaquinas)
 {
 }
 
-PLUGINC_API void __stdcall ConfigurarDB(PChar servidor, PChar nanco, PChar usuario, PChar senha, PChar provedor)
+void __stdcall ConfigurarDB(wchar_t* umServidor, wchar_t* umBanco, wchar_t* umUsuario, wchar_t* umaSenha, wchar_t* umProvedor)
 {
 }
 
-PLUGINC_API void __stdcall Desativar(int umaMaquina)
+void __stdcall Desativar(int umaMaquina)
 {
 }
 
-PLUGINC_API void __stdcall RegistrarAssinaturas(ProcAssinarEvento proc)
+void __stdcall RegistrarAssinaturas(ProcAssinarEvento AssinarEvento)
 {
+  // Este evento é gerado por ítens de interface (menu, botões) adicionados via ui.config
+  AssinarEvento(L"PluginC", L"EventoDeUIDePlugin.FuncaoNoPluginCPP");
 }
 
-PLUGINC_API PChar __stdcall ObterMacro (PChar umaMacro)
+wchar_t* __stdcall ObterMacro (wchar_t* umaMacro)
 {
 	return NULL;
 }
 
-PLUGINC_API PChar __stdcall VerificarVersao(PChar informacao)
+wchar_t* __stdcall VerificarVersao(wchar_t* informacao)
 {
 	return CopiarBuffer(L"");
 }

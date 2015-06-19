@@ -4,27 +4,27 @@ interface
 
 type
   // Ponteiros de função
-  ProcCallBack = procedure(umPlugin, umTipo, umValor: PChar); stdcall;
-  ProcObterConfigs = function(umPlugin:PChar; umaMaquina:Integer): Pchar; stdcall;
-  ProcGravarConfig =  procedure(umPlugin, umaConfig: PChar; global:Integer; umValor: PChar=nil); stdcall;
-  ProcCopiarBuffer = function(Buffer: PChar): PChar;stdcall;
-  ProcLiberarBuffer = procedure(Buffer: PChar);stdcall;
   ProcAssinarEvento = procedure (umPlugin, umIdentificador: PChar); stdcall;
-  ProcObterFuncao = function (nomeCallBack: PChar):Pointer; stdcall;
+  ProcCallBack = procedure(umPlugin, umTipo, umValor: PChar); stdcall;
+  ProcCopiarBuffer = function(Buffer: PChar): PChar; stdcall;
+  ProcGravarConfig =  procedure(umPlugin, umaConfig: PChar; umaMaquina:Integer; umValor: PChar=nil); stdcall;
+  ProcLiberarBuffer = procedure(Buffer: PChar);stdcall;
+  ProcObterConfigs = function(umPlugin:PChar; umaMaquina:Integer): Pchar; stdcall;
+  ProcObterFuncao = function (nomeFuncao: PChar):Pointer; stdcall;
 
   // Funções Exportadas da DLL
-  function Atualizar(var retorno: PChar): Integer; stdcall;
-  function Notificar(evento, informacao: PChar; var retorno: PChar): Integer; stdcall;
-  function ObterErro(): PChar; stdcall; export;
-  function ObterNome(): PChar; stdcall;
-  function ObterVersao(): PChar; stdcall;
   procedure Ativar(umaMaquina:Integer); stdcall; export;
   procedure AtribuirObtencaoDeFuncoes(_ObterFuncao: ProcObterFuncao); stdcall; export;
+  function Atualizar(out resultado: PChar): Integer; stdcall;
   procedure Configurar(dictMaquinas:PChar); stdcall; export;
   procedure ConfigurarDB (const umServidor, umBanco, umUsuario, umaSenha, umProvedor: PChar); stdcall;
   procedure Desativar(umaMaquina:Integer); stdcall; export;
-  procedure RegistrarAssinaturas(AssinarEvento: ProcAssinarEvento); stdcall; export;
+  function Notificar(evento, informacao: PChar; out resultado: PChar): Integer; stdcall;
+  function ObterErro(): PChar; stdcall; export;
   function ObterMacro (umaMacro: PChar): PChar; stdcall;
+  function ObterNome(): PChar; stdcall;
+  function ObterVersao(): PChar; stdcall;
+  procedure RegistrarAssinaturas(AssinarEvento: ProcAssinarEvento); stdcall; export;
   function VerificarVersao(informacao:PChar): PChar; stdcall; export;
 
 var
@@ -45,9 +45,9 @@ uses
   form.config;
 
 
-function Notificar(evento, informacao: PChar; var retorno: PChar): Integer;
+function Notificar(evento, informacao: PChar; out resultado: PChar): Integer;
 begin
-  retorno := nil;
+  resultado := nil;
   Result := 1;
 end;
 
@@ -99,9 +99,9 @@ begin
   TfrmConfig.Executar(dictMaquinas);
 end;
 
-function Atualizar(var retorno: PChar): Integer;
+function Atualizar(out resultado: PChar): Integer;
 begin
-  retorno := nil;
+  resultado := nil;
   Result := 1;
 end;
 
