@@ -9,6 +9,7 @@ import zipfile
 from collections import namedtuple
 from fabric.api import task, local, puts, prefix
 from config_empacotar import CAMINHO_PLUGINS_DEV, CAMINHO_PLUGINS_DEST
+from distutils.dir_util import copy_tree
 
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 _abs = lambda *x: os.path.join(BASE_PATH, *x)
@@ -178,6 +179,7 @@ def empacotar_plugin_py(nome_plugin, caminhodest=None):
     """
     EXT_PLUGINPY = '.cop'
     caminho = os.path.join(CAMINHO_PLUGINS_DEV, nome_plugin)
+    caminhodist = os.path.join(caminho, 'dist')
     caminhodest = caminhodest or os.path.join(CAMINHO_PLUGINS_DEST, nome_plugin)
 
     # Removo os arquivos compilados da origem (*.pyo, *.pyc)
@@ -186,18 +188,24 @@ def empacotar_plugin_py(nome_plugin, caminhodest=None):
     # Compilo os pythons, isso dá eficiência pois o pacote já terá bytecodes
     compileall.compile_dir(caminho, force=True)
     # Apago o diretório de destino do plugin
-    shutil.rmtree(caminhodest, True)
+    shutil.rmtree(caminhodist, True)
     # Copio tudo, exceto arquivos py, pyo, pyd e arquivos de IDE
-    print('Copiando de '+ caminho+ ' para '+ caminhodest)
+    print('Copiando de '+ caminho+ ' para '+ caminhodist)
     shutil.copytree(
         caminho,
-        caminhodest,
-        ignore=shutil.ignore_patterns('.idea', '*.py', '*.py[co]')
+        caminhodist,
+        ignore=shutil.ignore_patterns('.idea', '*.py', '*.py[co]', 'dist')
     )
     # Agora gero o zip com o diretório dentro referente a este pacote
-    zipdest = os.path.join(caminhodest, 'plugin.'+nome_plugin.lower() + EXT_PLUGINPY)
+    zipdest = os.path.join(caminhodist, 'plugin.'+nome_plugin.lower() + EXT_PLUGINPY)
     print('Gerando: '+ zipdest)
     with zipfile.ZipFile(zipdest, "w") as arqzip:
         for arq in glob.glob(os.path.join(caminho, '*.py*')):
             dest = nome_plugin + '\\' + arq[len(caminho):]
             arqzip.write(arq, dest)
+
+    # este copy_tree sabe sobrescrever os arquivos
+    copy_tree(
+        caminhodist,
+        caminhodest
+    )
