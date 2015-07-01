@@ -87,6 +87,9 @@ DEP_INSTALLERS = (
 
 @task
 def iniciar_ambiente():
+    """
+    Monta ambiente de python do Colibri
+    """
     putsc(" iniciando ambiente com dependencias ")
     _iniciar_virtualenv()
     local('pip install requests')
@@ -173,9 +176,10 @@ def _makedirs(filename):
 
 
 @task
-def empacotar_plugin_py(nome_plugin, caminhodest=None):
+def empacotar_plugin_py(nome_plugin, caminhodest=None, sourcecode=True):
     """
-    Gera o arquivo 'cop' com o plugin empacotado no diretório de binários
+    Gera o arquivo 'cop' com o plugin python
+    empacotado no diretório de binários
     """
     EXT_PLUGINPY = '.cop'
     caminho = os.path.join(CAMINHO_PLUGINS_DEV, nome_plugin)
@@ -187,7 +191,7 @@ def empacotar_plugin_py(nome_plugin, caminhodest=None):
         os.unlink(arq)
     # Compilo os pythons, isso dá eficiência pois o pacote já terá bytecodes
     compileall.compile_dir(caminho, force=True)
-    # Apago o diretório de destino do plugin
+    # Apago o diretório de distribuição do plugin
     shutil.rmtree(caminhodist, True)
     # Copio tudo, exceto arquivos py, pyo, pyd e arquivos de IDE
     print('Copiando de '+ caminho+ ' para '+ caminhodist)
@@ -200,7 +204,7 @@ def empacotar_plugin_py(nome_plugin, caminhodest=None):
     zipdest = os.path.join(caminhodist, 'plugin.'+nome_plugin.lower() + EXT_PLUGINPY)
     print('Gerando: '+ zipdest)
     with zipfile.ZipFile(zipdest, "w") as arqzip:
-        for arq in glob.glob(os.path.join(caminho, '*.py*')):
+        for arq in glob.glob(os.path.join(caminho, '*.py*' if sourcecode is True else '*.py[co]')):
             dest = nome_plugin + '\\' + arq[len(caminho):]
             arqzip.write(arq, dest)
 
