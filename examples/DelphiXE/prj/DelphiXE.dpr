@@ -20,7 +20,6 @@ exports
   ConfigurarDB,
   Desativar,
   Notificar,
-  ObterErro,
   ObterMacro,
   ObterNome,
   ObterVersao,

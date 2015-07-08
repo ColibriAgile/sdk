@@ -14,11 +14,11 @@ extern "C" {
 #endif
 void __stdcall Ativar(int umaMaquina);
 void __stdcall AtribuirObtencaoDeFuncoes(ProcObterFuncao _ObterFuncao);
-int __stdcall Atualizar(wchar_t** resultado); 
+wchar_t* __stdcall Atualizar();
 void __stdcall Configurar(wchar_t* dictMaquinas);
 void __stdcall ConfigurarDB(wchar_t* umServidor, wchar_t* umBanco, wchar_t* umUsuario, wchar_t* umaSenha, wchar_t* umProvedor);
 void __stdcall Desativar(int umaMaquina);
-int __stdcall Notificar(wchar_t* evento, wchar_t* informacao, wchar_t** resultado);
+wchar_t* __stdcall Notificar(wchar_t* evento, wchar_t* informacao);
 wchar_t* __stdcall ObterErro();
 wchar_t* __stdcall ObterMacro (wchar_t* umaMacro);
 wchar_t* __stdcall ObterNome();

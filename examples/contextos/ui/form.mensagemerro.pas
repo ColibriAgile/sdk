@@ -39,7 +39,7 @@ end;
 
 procedure TformMensagemErro.Button3Click(Sender: TObject);
 begin
-  memoErro.Lines.Text := 'abort';
+  ModalResult := mrAbort;
 end;
 
 procedure TformMensagemErro.FormShow(Sender: TObject);

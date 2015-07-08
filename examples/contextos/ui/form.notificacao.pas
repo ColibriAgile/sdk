@@ -54,9 +54,10 @@ type
   private
     { Private declarations }
     mensagemErro: string;
+    acao: string;
   public
     { Public declarations }
-    class function Executar(evento, contexto:string;out erro, modificadores: string; out naoExibir:Boolean): Integer;
+    class function Executar(evento, contexto:string;out erro, modificadores, acao: string; out naoExibir:Boolean): Integer;
   end;
 
 var
@@ -91,20 +92,28 @@ end;
 procedure TformNotificacao.ErroClick(Sender: TObject);
 var
   form: TformMensagemErro;
+  modalRes: Integer;
 begin
   form := TformMensagemErro.Create(nil);
   try
-    if form.ShowModal() = mrOk then
+    modalRes:= form.ShowModal();
+    if modalRes = mrOk then
     begin
       mensagemErro := form.memoErro.Lines.Text;
       ModalResult := mrCancel;
-    end;
+    end
+    else if modalRes = mrAbort then
+    begin
+      mensagemErro := form.memoErro.Lines.Text;
+      acao := 'abort';
+      ModalResult := mrAbort;
+    end
   finally
     FreeAndNil(form);
   end;
 end;
 
-class function TformNotificacao.Executar(evento, contexto:string;out erro, modificadores: string; out naoExibir:Boolean): Integer;
+class function TformNotificacao.Executar(evento, contexto:string;out erro, modificadores, acao: string; out naoExibir:Boolean): Integer;
 var
   form: TformNotificacao;
 begin
@@ -116,6 +125,7 @@ begin
     erro := form.mensagemErro;
     modificadores := form.mmoModificadores.Lines.Text;
     naoExibir := form.ckNaoExibir.Checked;
+    acao := form.acao;
   finally
     FreeAndNil(form);
   end;

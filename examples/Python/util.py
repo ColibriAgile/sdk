@@ -1,6 +1,7 @@
 # coding: utf-8
 import logging
 import os
+import json
 
 # obtem caminho do plugin
 def obter_caminho_plugin():
@@ -29,3 +30,7 @@ def codifica_retorno(texto):
     if isinstance(texto, unicode):
         return texto.encode('cp1252')
     return texto.decode('utf-8').encode('cp1252')
+
+
+def retornar(**kwargs):
+    return codifica_retorno(json.dumps(kwargs))

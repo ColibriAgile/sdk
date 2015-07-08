@@ -1,4 +1,4 @@
-library Contextos;
+library plugin.contextos;
 
 uses
   IOutils,
@@ -25,7 +25,6 @@ exports
   ConfigurarDB,
   Desativar,
   Notificar,
-  ObterErro,
   ObterMacro,
   ObterNome,
   ObterVersao,

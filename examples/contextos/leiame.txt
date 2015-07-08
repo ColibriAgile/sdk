@@ -1,3 +1,3 @@
-Este projeto foi desenvolvido utilizando Delphi XE e os seguintes componentes (free):
+Este projeto foi desenvolvido utilizando os seguintes componentes:
 - JEDI VCL versão 3.47 https://sourceforge.net/projects/jvcl
 

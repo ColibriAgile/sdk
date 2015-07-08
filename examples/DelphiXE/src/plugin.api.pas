@@ -15,12 +15,11 @@ type
   // Funções Exportadas da DLL
   procedure Ativar(umaMaquina:Integer); stdcall; export;
   procedure AtribuirObtencaoDeFuncoes(_ObterFuncao: ProcObterFuncao); stdcall; export;
-  function Atualizar(out resultado: PChar): Integer; stdcall;
+  function Atualizar(): PChar; stdcall;
   procedure Configurar(dictMaquinas:PChar); stdcall; export;
   procedure ConfigurarDB (const umServidor, umBanco, umUsuario, umaSenha, umProvedor: PChar); stdcall;
   procedure Desativar(umaMaquina:Integer); stdcall; export;
-  function Notificar(evento, informacao: PChar; out resultado: PChar): Integer; stdcall;
-  function ObterErro(): PChar; stdcall; export;
+  function Notificar(evento, informacao: PChar): PChar; stdcall;
   function ObterMacro (umaMacro: PChar): PChar; stdcall;
   function ObterNome(): PChar; stdcall;
   function ObterVersao(): PChar; stdcall;
@@ -45,10 +44,9 @@ uses
   form.config;
 
 
-function Notificar(evento, informacao: PChar; out resultado: PChar): Integer;
+function Notificar(evento, informacao: PChar): PChar;
 begin
-  resultado := nil;
-  Result := 1;
+  Result := CopiarBuffer(PChar(''));
 end;
 
 function ObterVersao(): PChar; stdcall; export;
@@ -67,11 +65,6 @@ begin
 
   // Este evento é gerado por ítens de interface (menu, botões) adicionados via ui.config
   AssinarEvento('plugin.delphi', PChar('EventoDeUIDePlugin.FuncaoNoPlugin'));
-end;
-
-function ObterErro(): PChar; stdcall; export;
-begin
-  Result := CopiarBuffer('');
 end;
 
 procedure AtribuirObtencaoDeFuncoes(_ObterFuncao: ProcObterFuncao); stdcall; export;
@@ -99,10 +92,9 @@ begin
   TfrmConfig.Executar(dictMaquinas);
 end;
 
-function Atualizar(out resultado: PChar): Integer;
+function Atualizar(): PChar;
 begin
-  resultado := nil;
-  Result := 1;
+  Result := CopiarBuffer('');
 end;
 
 function VerificarVersao(informacao:PChar): PChar; export;
@@ -117,7 +109,10 @@ end;
 
 function ObterMacro (umaMacro: PChar): PChar; stdcall;
 begin
-  Result := nil;
+  if umaMacro = 'Teste'  then
+    Result := CopiarBuffer(PChar('{"valor":"ValorMacroTeste"}'))
+  else
+    Result := CopiarBuffer(PChar(Format('{"erro":"Macro desconhecida: %s"}', [umaMacro])))
 end;
 
 

@@ -15,12 +15,11 @@ type
   // Funções Exportadas da DLL
   procedure Ativar(umaMaquina:Integer); stdcall; export;
   procedure AtribuirObtencaoDeFuncoes(_ObterFuncao: ProcObterFuncao); stdcall; export;
-  function Atualizar(out resultado: PChar): Integer; stdcall;
+  function Atualizar(): PChar; stdcall;
   procedure Configurar(dictMaquinas:PChar); stdcall; export;
   procedure ConfigurarDB (const umServidor, umBanco, umUsuario, umaSenha, umProvedor: PChar); stdcall;
   procedure Desativar(umaMaquina:Integer); stdcall; export;
-  function Notificar(evento, informacao: PChar; out resultado: PChar): Integer; stdcall;
-  function ObterErro(): PChar; stdcall; export;
+  function Notificar(evento, informacao: PChar): PChar; stdcall;
   function ObterMacro (umaMacro: PChar): PChar; stdcall;
   function ObterNome(): PChar; stdcall;
   function ObterVersao(): PChar; stdcall;
@@ -60,17 +59,19 @@ uses
 var
   params : ISuperObject;
   mostrarNotificacao: Boolean;
-  ultimoErro: string;
   ListaNaoExibir: TStringList;
 {$ifndef USAR_CODESITE}
   LogFilename: string;
 {$endif}
 
-function Notificar(evento, informacao: PChar; out resultado: PChar): Integer;
+function Notificar(evento, informacao: PChar): PChar;
 var
   stringList: TStringList;
   modificadores: string;
   naoExibir: Boolean;
+  ultimoErro: string;
+  acao: string;
+  resultado: ISuperObject;
 begin
   stringList := TStringList.Create;
   stringList.Text := SO(informacao).AsJSon(True);
@@ -84,7 +85,7 @@ begin
   naoExibir := False;
 
   if mostrarNotificacao and (ListaNaoExibir.IndexOf(evento) < 0) then
-    TformNotificacao.Executar(evento, stringList.Text, ultimoErro, modificadores, naoExibir);
+    TformNotificacao.Executar(evento, stringList.Text, ultimoErro, modificadores, acao, naoExibir);
 
   stringList.Free;
 
@@ -94,13 +95,17 @@ begin
     GravarConfig(NOME_PLUGIN, PChar(StringReplace(evento, '.', '_', [rfReplaceAll])), 0, nil);
 
   if Length(modificadores) >  0 then
-    resultado := CopiarBuffer(PChar(modificadores))
+    resultado := SO(modificadores)
   else
-    resultado := nil;
-  if ultimoErro = '' then
-    Result := 1
-  else
-    Result := 0;
+    resultado := SO();
+
+  if ultimoErro <> '' then
+    resultado.S['erro'] := ultimoErro;
+
+  if acao <> '' then
+    resultado.S['acao'] := acao;
+
+  Result := CopiarBuffer(PChar(resultado.AsJSon(True)));
 end;
 
 function ObterVersao(): PChar; stdcall; export;
@@ -150,11 +155,6 @@ begin
   LiberarBuffer(buffer);
 end;
 
-function ObterErro(): PChar; stdcall; export;
-begin
-  Result := CopiarBuffer(PChar(ultimoErro));
-end;
-
 procedure AtribuirObtencaoDeFuncoes(_ObterFuncao: ProcObterFuncao); stdcall; export;
 begin
   ObterFuncao := _ObterFuncao;
@@ -180,10 +180,9 @@ begin
   TfrmConfig.Executar(dictMaquinas);
 end;
 
-function Atualizar(out resultado: PChar): Integer;
+function Atualizar(): PChar;
 begin
-  resultado := nil;
-  Result := 1;
+  Result := CopiarBuffer('');
 end;
 
 function VerificarVersao(informacao:PChar): PChar; export;
@@ -198,7 +197,7 @@ end;
 
 function ObterMacro (umaMacro: PChar): PChar; stdcall;
 begin
-  Result := nil;
+  Result := CopiarBuffer(PChar(Format('{"erro":"Macro desconhecida: %s"}', [umaMacro])))
 end;
 
 

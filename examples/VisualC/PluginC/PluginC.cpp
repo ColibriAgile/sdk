@@ -12,19 +12,12 @@ ProcLiberarBuffer LiberarBuffer;
 ProcObterFuncao ObterFuncao;
 
 
-int __stdcall Atualizar(wchar_t** resultado)
+wchar_t* __stdcall Atualizar()
 {
-	resultado = NULL;
-	return 1;
+	return CopiarBuffer(L"");
 }
 
-int __stdcall Notificar(wchar_t* evento, wchar_t* informacao, wchar_t** resultado)
-{
-	*resultado = CopiarBuffer(L"");
-	return 1;
-}
-
-wchar_t* __stdcall ObterErro()
+wchar_t* __stdcall Notificar(wchar_t* evento, wchar_t* informacao)
 {
 	return CopiarBuffer(L"");
 }
@@ -67,13 +60,13 @@ void __stdcall Desativar(int umaMaquina)
 
 void __stdcall RegistrarAssinaturas(ProcAssinarEvento AssinarEvento)
 {
-  // Este evento é gerado por ítens de interface (menu, botões) adicionados via ui.config
-  AssinarEvento(L"PluginC", L"EventoDeUIDePlugin.FuncaoNoPluginCPP");
+	// Este evento é gerado por ítens de interface (menu, botões) adicionados via ui.config
+	AssinarEvento(L"PluginC", L"EventoDeUIDePlugin.FuncaoNoPluginCPP");
 }
 
 wchar_t* __stdcall ObterMacro (wchar_t* umaMacro)
 {
-	return NULL;
+	return CopiarBuffer(L"");
 }
 
 wchar_t* __stdcall VerificarVersao(wchar_t* informacao)
