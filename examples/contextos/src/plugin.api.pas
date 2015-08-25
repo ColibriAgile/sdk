@@ -13,12 +13,26 @@ type
   ProcObterFuncao = function (nomeFuncao: PChar):Pointer; stdcall;
 
   // Funções Exportadas da DLL
+  function ObterDadosFabricante(): PChar; stdcall;
   procedure Ativar(umaMaquina:Integer); stdcall; export;
   procedure AtribuirObtencaoDeFuncoes(_ObterFuncao: ProcObterFuncao); stdcall; export;
   function Atualizar(): PChar; stdcall;
   procedure Configurar(dictMaquinas:PChar); stdcall; export;
   procedure ConfigurarDB (const umServidor, umBanco, umUsuario, umaSenha, umProvedor: PChar); stdcall;
   procedure Desativar(umaMaquina:Integer); stdcall; export;
+const
+  FABRICANTE =
+   '{"fabricante":{' +
+       '"empresa":"NCR Corporation",' +
+       '"desenvolvedor":"Equipe Colibri Agile",' +
+       '"termos_da_licenca":"",' +
+       '"direitos_de_copia":"",' +
+       '"marcas_registradas":"Colibri® é marca registrada da NCR Corporation"' +
+    '}, "suporte":{' +
+       '"email":"suporte.canais@ncr.com",' +
+       '"url":"",' +
+       '"telefone":"(11)3323-3731"' +
+    '}}';
   function Notificar(evento, informacao: PChar): PChar; stdcall;
   function ObterMacro (umaMacro: PChar): PChar; stdcall;
   function ObterNome(): PChar; stdcall;
@@ -116,6 +130,11 @@ end;
 function ObterNome(): PChar; stdcall; export;
 begin
   Result := CopiarBuffer(PChar(NOME_PLUGIN));
+end;
+
+function ObterDadosFabricante(): PChar; stdcall; export;
+begin
+  Result := CopiarBuffer(PChar(FABRICANTE));
 end;
 
 procedure RegistrarAssinaturas(AssinarEvento: ProcAssinarEvento); stdcall; export;

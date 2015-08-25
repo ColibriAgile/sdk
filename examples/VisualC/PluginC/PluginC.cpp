@@ -27,6 +27,23 @@ wchar_t* __stdcall ObterNome()
 	return CopiarBuffer(L"PluginC");
 }
 
+wchar_t* __stdcall ObterDadosFabricante()
+{
+	wchar_t * dados = 
+	   L"{\"fabricante\":{"
+       L"\"empresa\":\"Nome da empresa\","
+       L"\"desenvolvedor\":\"Equipe\","
+       L"\"termos_da_licenca\":\"\","
+       L"\"direitos_de_copia\":\"\","
+       L"\"marcas_registradas\":\"X® é marca registrada da empresa Y\""
+       L"}, \"suporte\":{"
+       L"\"email\":\"suporte@empresa.com\","
+       L"\"url\":\"\","
+       L"\"telefone\":\"(99)9999-9999\""
+       L"}}";
+	return CopiarBuffer(dados);
+}
+
 wchar_t* __stdcall ObterVersao()
 {
 	return CopiarBuffer(L"1.0.0.0");

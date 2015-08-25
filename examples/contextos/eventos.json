@@ -1,21 +1,11 @@
 {
   "eventos":{
-    "EventoDeUi":[
-      "MostrarDica",
-      "MostrarMenuDinamico",
-      "MostrarTecladoALFA",
-      "ColetarNumero",
-      "ColetarSenhaSupervisor",
-      "ColetarValorDinheiro",
-      "MostrarListaUnicaEscolha"
-    ],
     "EventoDeSistema":[
       "AberturaDePeriodoSolicitada",
-      "AtualizarSplash",
-      "FecharSplash",
-      "ModoDeVendaTrocando",
+      "AtualizandoSplash",
+      "FechandoSplash",
+      "AoAlterarModoDeVenda",
       "ModoDeVendaAlterado",
-      "IniciarDependencias",
       "SistemaIniciando",
       "SistemaIniciado",
       "SistemaFinalizando",
@@ -25,13 +15,13 @@
       "TelaDeLancamentoFechada",
       "CarregandoPlugins",
       "PluginsCarregados",
-      "RelerParametros",
+      "RelendoParametros",
       "AoIniciarTerminalComoCaixa"
     ],
     "EventoDeCliente":[
       "ClienteAdicionado",
       "ClientePersistido",
-      "BuscarCEP"
+      "BuscandoCEP"
     ],
     "EventoDeSeguranca":[
       "AoIniciarSessao",
@@ -39,15 +29,14 @@
       "AoEncerrarSessao",
       "SessaoEncerrada",
       "SessaoOciosa",
+      "SolicitandoLogin",
       "AoEfetuarLogin",
       "LoginEfetuado",
       "LoginCancelado",
-      "SolicitarLogin",
-      "SolicitarElevacaoDePrivilegio",
-      "ElevacaoDePrivilegioConcedida",
       "PermissaoConcedida",
-      "LiberarToken",
-      "ColetarSenha"
+      "SolicitandoElevacaoDePrivilegio",
+      "ElevacaoDePrivilegioConcedida",
+      "LiberandoElevacaoDePrivilegio"
     ],
     "EventoDeFechamento":[
       "CaixaFechando",
@@ -58,26 +47,15 @@
       "PeriodoFechado"
     ],
     "EventoDeTef":[
-      "EmitirComprovanteDeAutorizacao",
-      "EmitirComprovanteDeCancelamento",
-      "EmitirComprovanteViaADM",
-      "AtribuirDesconto",
-      "ConfigurarAutopagamento"
-    ],
-    "EventoDeRelatorio":[
-      "AoIniciarRelatorio",
-      "RelatorioEmMemoriaGerado",
-      "RelatorioDeRemotaNormalGerado"
-    ],
-    "EventoDePlugin":[
-      "AtualizarSplash",
-      "SolicitarDadosDoConsumidor"
+      "EmitindoComprovanteDeAutorizacao",
+      "EmitindoComprovanteViaADM",
+      "DescontoAtribuido"
     ],
     "EventoDeVenda":[
       "AoIniciarUmaVenda",
       "VendaIniciada",
       "AoVenderItem",
-      "VenderItem",
+      "VendendoItem",
       "ItemVendido",
       "ItemNaoVendido",
       "AoEnviarPedido",
@@ -85,10 +63,10 @@
       "AoEstornarOperacao",
       "OperacaoEstornada",
       "AoCancelarOperacao",
-      "CancelarOperacao",
+      "CancelandoOperacao",
       "OperacaoCancelada",
       "AoCancelarItem",
-      "CancelarItem",
+      "CancelandoItem",
       "ItemCancelado",
       "AoFecharUmaVenda",
       "VendaFechada",
@@ -96,12 +74,12 @@
       "VendaReaberta",
       "AoEmitirConferenciaDeConta",
       "ConferenciaDeContaEmitida",
-      "SolicitarPedido",
-      "SolicitarCliente",
+      "SolicitandoPedido",
+      "SolicitandoCliente",
       "VendaAlterada",
       "AoIniciarExpedicao",
       "AoExpedirPedido",
-      "ExpedirPedido",
+      "ExpedindoPedido",
       "PedidoExpedido",
       "AoFecharOperacao",
       "OperacaoFechada",
@@ -111,24 +89,27 @@
       "AoDesagruparConsumo",
       "ConsumoDesagrupado",
       "ConsumidorInformado",
-      "InformarNumeroPessoas",
+      "InformandoNumeroPessoas",
       "AoInformarIntencaoPagamento",
-      "AntesDeEmitirComprovante",
-      "EmitirComprovante",
+      "AoEmitirComprovante",
+	  "AoEstornarOperacao",
+      "EmitindoComprovante",
       "OperacaoFinalizada",
-      "SolicitarReimpresaoDeConferencia",
-      "AlterouEntregador",
-      "MarchaLiberada"
+      "SolicitandoReimpressaoDeConferencia",
+      "EntregadorAlterado",
+      "MarchaLiberada",
+	  "ClienteAlterado",
+	  "AoAlterarCliente"
     ],
     "EventoDeCaixa":[
       "AguardandoMovimento",
       "MovimentoIniciado",
       "AoFinalizarMovimento",
-      "FinalizarMovimento",
+      "FinalizandoMovimento",
       "MovimentoFinalizado",
       "MovimentoNaoFinalizado",
       "AoCancelarMovimento",
-      "CancelarMovimento",
+      "CancelandoMovimento",
       "MovimentoCancelado",
       "MovimentoAlterado",
       "AoAdicionarItemDeMovimento",
@@ -138,8 +119,8 @@
       "AoCancelarItemDeMovimento",
       "ItemDeMovimentoCancelado",
       "ItemDeMovimentoRemovido",
-      "AbrirGaveta",
-      "StatusGaveta",
+      "AbrindoGaveta",
+      "ValidandoEstadoGaveta",
       "AoConfirmarPendura",
       "ReimpressaoSolicitada",
       "EmissaoDeComprovanteSolicitada",
@@ -149,12 +130,10 @@
       "AoAtribuirDesconto",
       "DescontoAtribuido"
     ],
-    "EventoDeConsumidor":[
-      "SolicitarDadosDoConsumidor"
-    ],
     "EventoDeTicket":[
       "AoSelecionarTicket",
-      "TicketSelecionado"
+      "TicketSelecionado",
+      "CheckoutFeito"
     ],
     "EventoDeFechamento":[
       "CaixaFechando",
@@ -164,8 +143,8 @@
       "PeriodoFechando",
       "PeriodoFechado"
     ],
-    "EventodeTransferencia":[
-      "AoFinalizarTransferencia"
+    "EventoDeTransferencia":[
+      "FinalizandoTransferencia"
     ],
     "EventoDeRelatorio":[
       "AoIniciarRelatorio",
@@ -173,4 +152,7 @@
       "RelatorioDeRemotaNormalGerado"
     ]
   }
+  ,"params":{
+	"desmarcar_eventos":true
+	}
 }

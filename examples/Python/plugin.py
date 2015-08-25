@@ -8,9 +8,30 @@ from colibri_mod import callback, assinar_evento, obter_configs, gravar_config
 PLUGIN_NAME = 'Teste'
 PLUGIN_VERSION = '1.0.0.0'
 
+DADOS_FABRICANTE = {
+    "fabricante":
+        {
+            "empresa": "Empresa",
+            "desenvolvedor": "Equipe",
+            "termos_da_licenca": "",
+            "direitos_de_copia": "",
+            "marcas_registradas": "",
+        },
+    "suporte":
+        {
+            "email": "suporte@empresa.com",
+            "url": "",
+            "telefone": "(99)9999-9999"
+        },
+}
+
 # Logger para testes
 log_file_name = os.path.join(obter_caminho_plugin(), PLUGIN_NAME + '.log')
 logger = criar_logger(__name__, log_file_name)
+
+# Funções obrigatórias
+def obter_dados_fabricante():
+    return retornar(**DADOS_FABRICANTE)
 
 
 # Funções opcionais: Implemente as que desejar

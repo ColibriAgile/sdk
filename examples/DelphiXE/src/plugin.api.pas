@@ -13,12 +13,26 @@ type
   ProcObterFuncao = function (nomeFuncao: PChar):Pointer; stdcall;
 
   // Funções Exportadas da DLL
+  function ObterDadosFabricante(): PChar; stdcall;
   procedure Ativar(umaMaquina:Integer); stdcall; export;
   procedure AtribuirObtencaoDeFuncoes(_ObterFuncao: ProcObterFuncao); stdcall; export;
   function Atualizar(): PChar; stdcall;
   procedure Configurar(dictMaquinas:PChar); stdcall; export;
   procedure ConfigurarDB (const umServidor, umBanco, umUsuario, umaSenha, umProvedor: PChar); stdcall;
   procedure Desativar(umaMaquina:Integer); stdcall; export;
+const
+  FABRICANTE =
+   '{"fabricante":{' +
+       '"empresa":"Empresa",' +
+       '"desenvolvedor":"Equipe",' +
+       '"termos_da_licenca":"",' +
+       '"direitos_de_copia":"",' +
+       '"marcas_registradas":""' +
+    '}, "suporte":{' +
+       '"email":"suporte@empresa.com",' +
+       '"url":"",' +
+       '"telefone":"(99)9999-9999"' +
+    '}}';
   function Notificar(evento, informacao: PChar): PChar; stdcall;
   function ObterMacro (umaMacro: PChar): PChar; stdcall;
   function ObterNome(): PChar; stdcall;
@@ -59,6 +73,11 @@ begin
   Result := CopiarBuffer(PChar('plugin.delphi'));
 end;
 
+
+function ObterDadosFabricante(): PChar; stdcall; export;
+begin
+  Result := CopiarBuffer(PChar(FABRICANTE));
+end;
 procedure RegistrarAssinaturas(AssinarEvento: ProcAssinarEvento); stdcall; export;
 begin
   // Assina os eventos que deseja receber
