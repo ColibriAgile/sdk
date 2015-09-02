@@ -39,11 +39,11 @@
       "LiberandoElevacaoDePrivilegio"
     ],
     "EventoDeFechamento":[
-      "CaixaFechando",
+      "AoFecharCaixa",
       "CaixaFechado",
-      "PeriodoAbrindo",
+      "AoAbrirPeriodo",
       "PeriodoAberto",
-      "PeriodoFechando",
+      "AoFecharPeriodo",
       "PeriodoFechado"
     ],
     "EventoDeTef":[
@@ -102,23 +102,23 @@
 	  "AoAlterarCliente"
     ],
     "EventoDeCaixa":[
-      "AguardandoMovimento",
-      "MovimentoIniciado",
-      "AoFinalizarMovimento",
-      "FinalizandoMovimento",
-      "MovimentoFinalizado",
-      "MovimentoNaoFinalizado",
-      "AoCancelarMovimento",
-      "CancelandoMovimento",
-      "MovimentoCancelado",
-      "MovimentoAlterado",
-      "AoAdicionarItemDeMovimento",
-      "ItemDeMovimentoAdicionado",
-      "AoAcrescentarValorEmItemDeMovimento",
-      "AoRemoverItemDeMovimento",
-      "AoCancelarItemDeMovimento",
-      "ItemDeMovimentoCancelado",
-      "ItemDeMovimentoRemovido",
+      "AguardandoCaixa",
+      "CaixaIniciado",
+      "AoFinalizarCaixa",
+      "FinalizandoCaixa",
+      "CaixaFinalizado",
+      "CaixaNaoFinalizado",
+      "AoCancelarCaixa",
+      "CancelandoCaixa",
+      "CaixaCancelado",
+      "CaixaAlterado",
+      "AoAdicionarItemDeCaixa",
+      "ItemDeCaixaAdicionado",
+      "AoAcrescentarValorEmItemDeCaixa",
+      "AoRemoverItemDeCaixa",
+      "AoCancelarItemDeCaixa",
+      "ItemDeCaixaCancelado",
+      "ItemDeCaixaRemovido",
       "AbrindoGaveta",
       "ValidandoEstadoGaveta",
       "AoConfirmarPendura",
@@ -135,21 +135,8 @@
       "TicketSelecionado",
       "CheckoutFeito"
     ],
-    "EventoDeFechamento":[
-      "CaixaFechando",
-      "CaixaFechado",
-      "PeriodoAbrindo",
-      "PeriodoAberto",
-      "PeriodoFechando",
-      "PeriodoFechado"
-    ],
     "EventoDeTransferencia":[
       "FinalizandoTransferencia"
-    ],
-    "EventoDeRelatorio":[
-      "AoIniciarRelatorio",
-      "RelatorioEmMemoriaGerado",
-      "RelatorioDeRemotaNormalGerado"
     ]
   }
   ,"params":{
