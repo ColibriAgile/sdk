@@ -1,3 +1,3 @@
 Este projeto foi desenvolvido utilizando os seguintes componentes:
 - JEDI VCL versão 3.47 https://sourceforge.net/projects/jvcl
-
+- SuperObject: https://github.com/hgourvest/superobject

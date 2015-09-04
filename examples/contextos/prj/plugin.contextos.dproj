@@ -39,7 +39,7 @@
 		<PropertyGroup Condition="'$(Base_Win32)'!=''">
 			<OutputExt>col</OutputExt>
 			<Debugger_RunParams>-debugview -arquivolog  -sem_relatorios</Debugger_RunParams>
-			<DCC_UnitSearchPath>$(CLIB32);$(CBPL32);$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+			<DCC_UnitSearchPath>..\dcu;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<DCC_DcuOutput>..\dcu</DCC_DcuOutput>
 			<Debugger_HostApplication>D:\Projetos\colibri-8\ColibriPOS.exe</Debugger_HostApplication>
 			<Debugger_CWD>D:\Projetos\colibri-8\bin\plugins\contextos</Debugger_CWD>
