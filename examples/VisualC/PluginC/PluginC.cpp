@@ -7,24 +7,24 @@
 ProcCallBack CallBack;
 ProcObterConfigs ObterConfigs;
 ProcGravarConfig GravarConfig;
-ProcCopiarBuffer CopiarBuffer;
+ProcAlocarBuffer AlocarBuffer;
 ProcLiberarBuffer LiberarBuffer;
 ProcObterFuncao ObterFuncao;
 
 
 wchar_t* __stdcall Atualizar()
 {
-	return CopiarBuffer(L"");
+	return AlocarBuffer(L"");
 }
 
 wchar_t* __stdcall Notificar(wchar_t* evento, wchar_t* informacao)
 {
-	return CopiarBuffer(L"");
+	return AlocarBuffer(L"");
 }
 
 wchar_t* __stdcall ObterNome()
 {
-	return CopiarBuffer(L"PluginC");
+	return AlocarBuffer(L"PluginC");
 }
 
 wchar_t* __stdcall ObterDadosFabricante()
@@ -41,12 +41,12 @@ wchar_t* __stdcall ObterDadosFabricante()
        L"\"url\":\"\","
        L"\"telefone\":\"(99)9999-9999\""
        L"}}";
-	return CopiarBuffer(dados);
+	return AlocarBuffer(dados);
 }
 
 wchar_t* __stdcall ObterVersao()
 {
-	return CopiarBuffer(L"1.0.0.0");
+	return AlocarBuffer(L"1.0.0.0");
 }
 
 void __stdcall Ativar(int umaMaquina)
@@ -59,7 +59,7 @@ void __stdcall AtribuirObtencaoDeFuncoes(ProcObterFuncao _ObterFuncao)
 	CallBack = (ProcCallBack) ObterFuncao(L"CallBack");
 	ObterConfigs = (ProcObterConfigs) ObterFuncao(L"ObterConfigs");
 	GravarConfig = (ProcGravarConfig) ObterFuncao(L"GravarConfig");
-	CopiarBuffer = (ProcCopiarBuffer) ObterFuncao(L"CopiarBuffer");
+	AlocarBuffer = (ProcAlocarBuffer) ObterFuncao(L"AlocarBuffer");
 	LiberarBuffer = (ProcLiberarBuffer) ObterFuncao(L"LiberarBuffer");
 }
 
@@ -83,10 +83,10 @@ void __stdcall RegistrarAssinaturas(ProcAssinarEvento AssinarEvento)
 
 wchar_t* __stdcall ObterMacro (wchar_t* umaMacro)
 {
-	return CopiarBuffer(L"");
+	return AlocarBuffer(L"");
 }
 
 wchar_t* __stdcall VerificarVersao(wchar_t* informacao)
 {
-	return CopiarBuffer(L"");
+	return AlocarBuffer(L"");
 }

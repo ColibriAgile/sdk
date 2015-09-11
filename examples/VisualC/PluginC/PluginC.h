@@ -4,7 +4,7 @@ typedef void (__stdcall *ProcAssinarEvento)(wchar_t* umPlugin, wchar_t* umIdenti
 typedef void (__stdcall *ProcCallBack)(wchar_t* umPlugin, wchar_t* umTipo, wchar_t* umValor);
 typedef wchar_t* (__stdcall *ProcObterConfigs)(wchar_t* umPlugin, wchar_t* umaMaquina);
 typedef void (__stdcall *ProcGravarConfig)(wchar_t* umPlugin, wchar_t* umaConfig, int umaMaquina, wchar_t* umValor);
-typedef wchar_t* (__stdcall *ProcCopiarBuffer)(wchar_t* Buffer);
+typedef wchar_t* (__stdcall *ProcAlocarBuffer)(wchar_t* Buffer);
 typedef void (__stdcall *ProcLiberarBuffer)(wchar_t* Buffer);
 typedef void * (__stdcall *ProcObterFuncao)(wchar_t* nomeFuncao);
 
