@@ -1,4 +1,4 @@
-# coding: utf-8
+﻿# coding: utf-8
 import json
 import os
 from util import obter_caminho_plugin, criar_logger, codifica_retorno, retornar
@@ -63,10 +63,10 @@ def configurar(maquinas):
     logger.debug('configurar: %s', maquinas)
 
     
-def notificar(evento, informacao):
+def notificar(evento, contexto):
     logger.debug(
-        'notificar: evento %s, informacao %s' %
-        (evento, informacao)
+        'notificar: evento %s, contexto %s' %
+        (evento, contexto)
     )
     try:
         pass  # Tratar a notificação

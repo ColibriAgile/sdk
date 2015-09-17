@@ -4,8 +4,8 @@ interface
 
 type
   // Ponteiros de função
-  ProcAssinarEvento = procedure (umPlugin, umIdentificador: PChar); stdcall;
-  ProcCallBack = procedure(umPlugin, umTipo, umValor: PChar); stdcall;
+  ProcAssinarEvento = procedure (umPlugin, umEvento: PChar); stdcall;
+  ProcCallBack = procedure(umPlugin, umEvento, umContexto: PChar); stdcall;
   ProcCopiarBuffer = function(Buffer: PChar): PChar; stdcall;
   ProcGravarConfig =  procedure(umPlugin, umaConfig: PChar; umaMaquina:Integer; umValor: PChar=nil); stdcall;
   ProcLiberarBuffer = procedure(Buffer: PChar);stdcall;
@@ -33,7 +33,7 @@ const
        '"url":"",' +
        '"telefone":"(99)9999-9999"' +
     '}}';
-  function Notificar(evento, informacao: PChar): PChar; stdcall;
+  function Notificar(evento, contexto: PChar): PChar; stdcall;
   function ObterMacro (umaMacro: PChar): PChar; stdcall;
   function ObterNome(): PChar; stdcall;
   function ObterVersao(): PChar; stdcall;
@@ -58,7 +58,7 @@ uses
   form.config;
 
 
-function Notificar(evento, informacao: PChar): PChar;
+function Notificar(evento, contexto: PChar): PChar;
 begin
   Result := CopiarBuffer(PChar(''));
 end;

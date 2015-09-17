@@ -1,7 +1,7 @@
 #pragma once
 
-typedef void (__stdcall *ProcAssinarEvento)(wchar_t* umPlugin, wchar_t* umIdentificador);
-typedef void (__stdcall *ProcCallBack)(wchar_t* umPlugin, wchar_t* umTipo, wchar_t* umValor);
+typedef void (__stdcall *ProcAssinarEvento)(wchar_t* umPlugin, wchar_t* umEvento);
+typedef void (__stdcall *ProcCallBack)(wchar_t* umPlugin, wchar_t* umEvento, wchar_t* umContexto);
 typedef wchar_t* (__stdcall *ProcObterConfigs)(wchar_t* umPlugin, wchar_t* umaMaquina);
 typedef void (__stdcall *ProcGravarConfig)(wchar_t* umPlugin, wchar_t* umaConfig, int umaMaquina, wchar_t* umValor);
 typedef wchar_t* (__stdcall *ProcAlocarBuffer)(wchar_t* Buffer);
@@ -18,7 +18,7 @@ wchar_t* __stdcall Atualizar();
 void __stdcall Configurar(wchar_t* dictMaquinas);
 void __stdcall ConfigurarDB(wchar_t* umServidor, wchar_t* umBanco, wchar_t* umUsuario, wchar_t* umaSenha, wchar_t* umProvedor);
 void __stdcall Desativar(int umaMaquina);
-wchar_t* __stdcall Notificar(wchar_t* evento, wchar_t* informacao);
+wchar_t* __stdcall Notificar(wchar_t* evento, wchar_t* contexto);
 wchar_t* __stdcall ObterErro();
 wchar_t* __stdcall ObterMacro (wchar_t* umaMacro);
 wchar_t* __stdcall ObterNome();

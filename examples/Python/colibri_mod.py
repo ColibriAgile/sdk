@@ -1,4 +1,4 @@
-# coding: utf-8
+﻿# coding: utf-8
 
 """
 
@@ -11,10 +11,10 @@ try:
 except ImportError:
     """ Permite testar os scripts fora do colibri
     """
-    def callback(um_plugin, um_tipo, um_valor):
+    def callback(um_plugin, um_evento, um_contexto):
         pass
 
-    def assinar_evento(um_plugin, um_identificador):
+    def assinar_evento(um_plugin, um_evento):
         pass
 
     def obter_configs(um_plugin, uma_maquina):

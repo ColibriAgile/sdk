@@ -4,8 +4,8 @@ interface
 
 type
   // Ponteiros de função
-  ProcAssinarEvento = procedure (umPlugin, umIdentificador: PChar); stdcall;
-  ProcCallBack = procedure(umPlugin, umTipo, umValor: PChar); stdcall;
+  ProcAssinarEvento = procedure (umPlugin, umEvento: PChar); stdcall;
+  ProcCallBack = procedure(umPlugin, umEvento, umContexto: PChar); stdcall;
   ProcAlocarBuffer = function(Buffer: PChar): PChar; stdcall;
   ProcGravarConfig =  procedure(umPlugin, umaConfig: PChar; umaMaquina:Integer; umValor: PChar=nil); stdcall;
   ProcLiberarBuffer = procedure(Buffer: PChar);stdcall;
@@ -33,7 +33,7 @@ const
        '"url":"",' +
        '"telefone":"(11)3323-3731"' +
     '}}';
-  function Notificar(evento, informacao: PChar): PChar; stdcall;
+  function Notificar(evento, contexto: PChar): PChar; stdcall;
   function ObterMacro (umaMacro: PChar): PChar; stdcall;
   function ObterNome(): PChar; stdcall;
   function ObterVersao(): PChar; stdcall;
@@ -78,7 +78,7 @@ var
   LogFilename: string;
 {$endif}
 
-function Notificar(evento, informacao: PChar): PChar;
+function Notificar(evento, contexto: PChar): PChar;
 var
   stringList: TStringList;
   modificadores: string;
@@ -88,7 +88,7 @@ var
   resultado: ISuperObject;
 begin
   stringList := TStringList.Create;
-  stringList.Text := SO(informacao).AsJSon(True);
+  stringList.Text := SO(contexto).AsJSon(True);
   {$ifdef USAR_CODESITE}
   Logger(LOG_SESSAO).Debug(Format('Evento disparado <%s> com contexto', [evento]), stringList);
   {$else}

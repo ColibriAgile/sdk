@@ -17,7 +17,7 @@ wchar_t* __stdcall Atualizar()
 	return AlocarBuffer(L"");
 }
 
-wchar_t* __stdcall Notificar(wchar_t* evento, wchar_t* informacao)
+wchar_t* __stdcall Notificar(wchar_t* evento, wchar_t* contexto)
 {
 	return AlocarBuffer(L"");
 }
