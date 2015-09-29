@@ -82,6 +82,12 @@ DEP_INSTALLERS = (
         predicate=should_install_pyodbc,
         post=None
     ),
+    Dependency(
+        name='pycrypto-2.6.1.win32-py2.7.exe',
+        link='http://www.voidspace.org.uk/python/pycrypto-2.6.1/pycrypto-2.6.1.win32-py2.7.exe',
+        predicate=None,
+        post=None
+    ),
 )
 
 
@@ -190,7 +196,7 @@ def empacotar_plugin_py(nome_plugin, caminhodest=None, sourcecode=True):
     for arq in glob.glob(os.path.join(caminho, '*.py[co]')):
         os.unlink(arq)
     # Compilo os pythons, isso dá eficiência pois o pacote já terá bytecodes
-    compileall.compile_dir(caminho, force=True)
+    compileall.compile_dir(caminho, ddir='.' + nome_plugin, force=True)
     # Apago o diretório de distribuição do plugin
     shutil.rmtree(caminhodist, True)
     # Copio tudo, exceto arquivos py, pyo, pyd e arquivos de IDE
