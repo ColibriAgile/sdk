@@ -78,7 +78,7 @@ def notificar(evento, contexto):
 
 def verificar_versao(informacao):
     info = json.loads(informacao)
-    if info['versao'] > 2000:
+    if info['versao'] >= 2000:
         return retornar(erro='Não suporta versão >= 2000')
     return ''  # Nenhuma objeção a essa versão
 

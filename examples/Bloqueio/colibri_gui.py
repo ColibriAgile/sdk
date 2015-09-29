@@ -7,29 +7,6 @@ from threading import Thread
 FW_COLIBRI = ('TApplication', "NCR Colibri POS")
 FW_GER_PLUGINS = ('TformPrincipal', 'NCR Colibri - Gerenciador de plugins')
 
-__encapsulada = []
-def mfc_ajusta_frame_colibri():
-    """
-    Ajusta o frame principal como sendo o do Colibri,
-    permitindo criar diálogos modais vinculados
-    utilizando pywin.mfc.dialog.Dialog.
-    (Não é necessário para o ColibriPlugins.exe)
-    """
-    try:
-        win32ui.GetMainFrame()
-        if len(__encapsulada) == 0:
-            raise Exception('Achou main frame')
-    except Exception:
-        h = win32gui.FindWindow(*FW_COLIBRI)
-        if h:
-            cwnd = win32ui.CreateWindowFromHandle(h)
-            if not cwnd:
-                raise Exception('Falha ao encapsular')
-            win32ui.GetApp().SetMainFrame(cwnd)
-            __encapsulada.append(cwnd)
-        else:
-            raise Exception('Falha ao achar janela')
-
 
 def mfc_do_modal(dlg):
     """
