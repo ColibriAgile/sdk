@@ -60,6 +60,9 @@ def tk_como_modal(tk, fw_janela=FW_COLIBRI):
         # invoca a função de finalização
         tk.wm_protocol('WM_DELETE_WINDOW', finaliza)
 
+    # ESC sai do diálogo
+    tk.bind('<Escape>', lambda e: tk.destroy())
+
 
 def tk_botao_default (janela, bt):
     """

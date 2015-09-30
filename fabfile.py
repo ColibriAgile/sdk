@@ -18,6 +18,7 @@ Dependency = namedtuple('Dependency', 'name link predicate post')
 
 sys.path.insert(0, BASE_PATH)
 
+TCL_PATH = r'c:\python27\tcl'
 ENV_NAME = 'colibri'
 WORKON = r'workon {}'.format(ENV_NAME)
 WORKON_HOME = os.environ.get('WORKON_HOME')
@@ -100,6 +101,10 @@ def iniciar_ambiente():
     _iniciar_virtualenv()
     local('pip install requests')
 
+    if WORKON_HOME not in sys.executable:
+        global TCL_PATH
+        TCL_PATH = os.path.join(os.path.split(sys.executable)[0], 'tcl')
+
     with prefix(WORKON):
         _download()
         _instalar_dependencias()
@@ -114,6 +119,8 @@ def iniciar_ambiente():
             pass
         for arq in glob.glob(_abs('yaml\\*.*')):
             shutil.copy(arq, os.path.join(dest, os.path.split(arq)[1]))
+
+        link_tkinter()
 
 
 def _iniciar_virtualenv():
@@ -179,6 +186,23 @@ def _makedirs(filename):
     dirname = os.path.dirname(filename)
     if not os.path.exists(dirname):
         os.makedirs(dirname)
+
+
+def _criar_link(origem, destino):
+    """
+    Utilitário para criar links simbólicos entre diretórios.
+    """
+    if os.path.exists(destino):
+        local('rmdir /S /Q %s' % destino)
+    comando = 'mklink /J %s %s' % (destino, origem)
+    local(comando)
+
+@task
+def link_tkinter():
+    for pasta in os.listdir(TCL_PATH):
+        cam = os.path.join(TCL_PATH, pasta)
+        if os.path.isdir(cam):
+            _criar_link(cam, os.path.join(WORKON_HOME, 'lib', pasta))
 
 
 @task

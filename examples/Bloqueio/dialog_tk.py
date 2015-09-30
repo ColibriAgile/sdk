@@ -49,4 +49,7 @@ def liberar_mesa(pergunta=u"Mesa a liberar"):
     return retorno[0]
 
 if __name__ == '__main__':
-    liberar_mesa()
+    import threading
+    t = threading.Thread(target=liberar_mesa)
+    t.start()
+    t.join()
