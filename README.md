@@ -18,4 +18,4 @@ Trata-se do SDK básico para desenvolver Plugins para o Colibri
 
 ### Contato ###
 
-* Qualquer dúvida entre em contato com: colibri.agile@ncr.com
+Qualquer dúvida entre em contato com: colibri.agile@ncr.com
