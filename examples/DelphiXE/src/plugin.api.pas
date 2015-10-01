@@ -6,7 +6,7 @@ type
   // Ponteiros de função
   ProcAssinarEvento = procedure (umPlugin, umEvento: PChar); stdcall;
   ProcCallBack = procedure(umPlugin, umEvento, umContexto: PChar); stdcall;
-  ProcCopiarBuffer = function(Buffer: PChar): PChar; stdcall;
+  ProcAlocarBuffer = function(Buffer: PChar): PChar; stdcall;
   ProcGravarConfig =  procedure(umPlugin, umaConfig: PChar; umaMaquina:Integer; umValor: PChar=nil); stdcall;
   ProcLiberarBuffer = procedure(Buffer: PChar);stdcall;
   ProcObterConfigs = function(umPlugin:PChar; umaMaquina:Integer): Pchar; stdcall;
@@ -42,7 +42,7 @@ const
 
 var
   ObterFuncao: ProcObterFuncao;
-  CopiarBuffer: ProcCopiarBuffer;
+  AlocarBuffer: ProcAlocarBuffer;
   LiberarBuffer: ProcLiberarBuffer;
   CallBack: ProcCallBack;
   ObterConfigs: ProcObterConfigs;
@@ -60,28 +60,26 @@ uses
 
 function Notificar(evento, contexto: PChar): PChar;
 begin
-  Result := CopiarBuffer(PChar(''));
+  Result := AlocarBuffer(PChar(''));
 end;
 
 function ObterVersao(): PChar; stdcall; export;
 begin
-  Result := CopiarBuffer(PChar('1.0.0.0'));
+  Result := AlocarBuffer(PChar('1.0.0.0'));
 end;
 
 function ObterNome(): PChar; stdcall; export;
 begin
-  Result := CopiarBuffer(PChar('plugin.delphi'));
+  Result := AlocarBuffer(PChar('plugin.delphi'));
 end;
 
 
 function ObterDadosFabricante(): PChar; stdcall; export;
 begin
-  Result := CopiarBuffer(PChar(FABRICANTE));
+    Result := AlocarBuffer(PChar(FABRICANTE));
 end;
 procedure RegistrarAssinaturas(AssinarEvento: ProcAssinarEvento); stdcall; export;
 begin
-  // Assina os eventos que deseja receber
-
   // Este evento é gerado por ítens de interface (menu, botões) adicionados via ui.config
   AssinarEvento('plugin.delphi', PChar('EventoDeUIDePlugin.FuncaoNoPlugin'));
 end;
@@ -89,7 +87,7 @@ end;
 procedure AtribuirObtencaoDeFuncoes(_ObterFuncao: ProcObterFuncao); stdcall; export;
 begin
   ObterFuncao := _ObterFuncao;
-  CopiarBuffer := ProcCopiarBuffer(ObterFuncao('CopiarBuffer'));
+  AlocarBuffer := ProcAlocarBuffer(ObterFuncao('AlocarBuffer'));
   LiberarBuffer := ProcLiberarBuffer(ObterFuncao('LiberarBuffer'));
   CallBack := ProcCallBack(ObterFuncao('CallBack'));
   ObterConfigs := ProcObterConfigs(ObterFuncao('ObterConfigs'));
@@ -113,12 +111,12 @@ end;
 
 function Atualizar(): PChar;
 begin
-  Result := CopiarBuffer('');
+  Result := AlocarBuffer('');
 end;
 
 function VerificarVersao(informacao:PChar): PChar; export;
 begin
-  Result := CopiarBuffer('');
+  Result := AlocarBuffer('');
 end;
 
 procedure ConfigurarDB (const umServidor, umBanco, umUsuario, umaSenha, umProvedor: PChar); stdcall;
@@ -129,9 +127,9 @@ end;
 function ObterMacro (umaMacro: PChar): PChar; stdcall;
 begin
   if umaMacro = 'Teste'  then
-    Result := CopiarBuffer(PChar('{"valor":"ValorMacroTeste"}'))
+    Result := AlocarBuffer(PChar('{"valor":"ValorMacroTeste"}'))
   else
-    Result := CopiarBuffer(PChar(Format('{"erro":"Macro desconhecida: %s"}', [umaMacro])))
+    Result := AlocarBuffer(PChar(Format('{"erro":"Macro desconhecida: %s"}', [umaMacro])))
 end;
 
 
