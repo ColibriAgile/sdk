@@ -38,12 +38,11 @@
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Base_Win32)'!=''">
 			<OutputExt>col</OutputExt>
-			<Debugger_RunParams>-debugview -arquivolog  -sem_relatorios</Debugger_RunParams>
 			<DCC_UnitSearchPath>$(CLIB32);$(CBPL32);$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
 			<DCC_DcuOutput>..\dcu</DCC_DcuOutput>
-			<Debugger_HostApplication>c:\colibri 8\colibriplugins.exe</Debugger_HostApplication>
-			<Debugger_CWD>D:\projetos\Colibri\bin\plugins\fiscal</Debugger_CWD>
-			<Debugger_DebugSourcePath>D:\projetos\Colibri\;$(Debugger_DebugSourcePath)</Debugger_DebugSourcePath>
+			<Debugger_HostApplication>c:\colibri 8\colibripos.exe</Debugger_HostApplication>
+			<Debugger_CWD>c:\colibri 8</Debugger_CWD>
+			<Debugger_DebugSourcePath>D:\projetos\colibri-8;d:\projetos\colibri-plugins-sdk\examples\delphixe;$(Debugger_DebugSourcePath)</Debugger_DebugSourcePath>
 			<DCC_ExeOutput>c:\Colibri 8\bin\plugins\DelphiXE</DCC_ExeOutput>
 			<VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
 			<DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
@@ -97,6 +96,7 @@
 						<VersionInfoKeys Name="LastCompiledTime">02/06/2014 15:26:47</VersionInfoKeys>
 					</VersionInfoKeys>
 					<Excluded_Packages>
+						<Excluded_Packages Name="$(BDSBIN)\dclofficexp160.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
 						<Excluded_Packages Name="$(BDSBIN)\dcloffice2k160.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
 					</Excluded_Packages>
 					<Source>
