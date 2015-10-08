@@ -98,8 +98,8 @@
       "SolicitandoReimpressaoDeConferencia",
       "EntregadorAlterado",
       "MarchaLiberada",
-	  "ClienteAlterado",
-	  "AoAlterarCliente"
+	  "ClienteAtribuido",
+	  "AoAtribuirCliente"
     ],
     "EventoDeCaixa":[
       "AguardandoCaixa",
@@ -139,7 +139,4 @@
       "FinalizandoTransferencia"
     ]
   }
-  ,"params":{
-	"desmarcar_eventos":true
-	}
 }
