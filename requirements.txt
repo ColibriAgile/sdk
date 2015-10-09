@@ -2,6 +2,4 @@ Jinja2==2.7.3
 MarkupSafe==0.23
 adodbapi==2.6.0.7
 altgraph==0.9
-pyodbc==3.0.7
-pywin32==219
 simplejson==3.7.1
