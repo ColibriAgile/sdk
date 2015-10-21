@@ -2,12 +2,12 @@
 
 typedef void (__stdcall *ProcAssinarEvento)(wchar_t* umPlugin, wchar_t* umEvento);
 typedef void (__stdcall *ProcCallBack)(wchar_t* umPlugin, wchar_t* umEvento, wchar_t* umContexto);
-typedef wchar_t* (__stdcall *ProcObterConfigs)(wchar_t* umPlugin, wchar_t* umaMaquina);
+typedef wchar_t* (__stdcall *ProcObterConfigs)(wchar_t* umPlugin, int umaMaquina);
 typedef void (__stdcall *ProcGravarConfig)(wchar_t* umPlugin, wchar_t* umaConfig, int umaMaquina, wchar_t* umValor);
 typedef wchar_t* (__stdcall *ProcAlocarBuffer)(wchar_t* Buffer);
 typedef void (__stdcall *ProcLiberarBuffer)(wchar_t* Buffer);
 typedef void * (__stdcall *ProcObterFuncao)(wchar_t* nomeFuncao);
-
+typedef int (__stdcall *ProcObterMensagem)(wchar_t* plugin, wchar_t* dados);
 
 #ifdef __cplusplus
 extern "C" {
