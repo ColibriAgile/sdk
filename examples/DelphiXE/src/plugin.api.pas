@@ -11,7 +11,7 @@ type
   ProcLiberarBuffer = procedure(Buffer: PChar);stdcall;
   ProcObterConfigs = function(umPlugin:PChar; umaMaquina:Integer): Pchar; stdcall;
   ProcObterFuncao = function (nomeFuncao: PChar):Pointer; stdcall;
-  ProcObterMensagem= function(plugin, dados:PChar): Integer; stdcall;
+  ProcMostrarMensagem = function(plugin, dados:PChar): Integer; stdcall;
 
   // Funções Exportadas da DLL
   function ObterDadosFabricante(): PChar; stdcall;
@@ -48,7 +48,7 @@ var
   CallBack: ProcCallBack;
   ObterConfigs: ProcObterConfigs;
   GravarConfig: ProcGravarConfig;
-  Mensagem: ProcObterMensagem;
+  MostrarMensagem: ProcMostrarMensagem;
 
 
 implementation
@@ -94,7 +94,7 @@ begin
   CallBack := ProcCallBack(ObterFuncao('CallBack'));
   ObterConfigs := ProcObterConfigs(ObterFuncao('ObterConfigs'));
   GravarConfig := ProcGravarConfig(ObterFuncao('GravarConfig'));
-  Mensagem := ProcObterMensagem(ObterFuncao('Mensagem'));
+  MostrarMensagem := ProcMostrarMensagem(ObterFuncao('MostrarMensagem'));
 end;
 
 procedure Ativar(umaMaquina:Integer); stdcall; export;

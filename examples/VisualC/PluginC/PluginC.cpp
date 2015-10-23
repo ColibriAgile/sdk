@@ -10,7 +10,7 @@ ProcGravarConfig GravarConfig;
 ProcAlocarBuffer AlocarBuffer;
 ProcLiberarBuffer LiberarBuffer;
 ProcObterFuncao ObterFuncao;
-ProcObterMensagem Mensagem;
+ProcMostrarMensagem MostrarMensagem;
 
 
 wchar_t* __stdcall Atualizar()
@@ -62,7 +62,7 @@ void __stdcall AtribuirObtencaoDeFuncoes(ProcObterFuncao _ObterFuncao)
 	GravarConfig = (ProcGravarConfig) ObterFuncao(L"GravarConfig");
 	AlocarBuffer = (ProcAlocarBuffer) ObterFuncao(L"AlocarBuffer");
 	LiberarBuffer = (ProcLiberarBuffer) ObterFuncao(L"LiberarBuffer");
-	Mensagem = (ProcObterMensagem) ObterFuncao(L"Mensagem");
+	MostrarMensagem = (ProcMostrarMensagem) ObterFuncao(L"MostrarMensagem");
 }
 
 void __stdcall Configurar(wchar_t* dictMaquinas)

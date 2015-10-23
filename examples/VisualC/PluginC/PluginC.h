@@ -7,7 +7,7 @@ typedef void (__stdcall *ProcGravarConfig)(wchar_t* umPlugin, wchar_t* umaConfig
 typedef wchar_t* (__stdcall *ProcAlocarBuffer)(wchar_t* Buffer);
 typedef void (__stdcall *ProcLiberarBuffer)(wchar_t* Buffer);
 typedef void * (__stdcall *ProcObterFuncao)(wchar_t* nomeFuncao);
-typedef int (__stdcall *ProcObterMensagem)(wchar_t* plugin, wchar_t* dados);
+typedef int (__stdcall *ProcMostrarMensagem)(wchar_t* plugin, wchar_t* dados);
 
 #ifdef __cplusplus
 extern "C" {
