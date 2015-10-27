@@ -23,3 +23,13 @@ except ImportError:
     def gravar_config(um_plugin, uma_config, maquina_id, um_valor):
         pass
 
+# funções do GP 1001
+try:
+    from colibri import mostrar_teclado, mostrar_mensagem
+except ImportError:
+    def mostrar_teclado(um_plugin, dados):
+        return '{"retorno":false, "resposta":''}'
+    def mostrar_mensagem(um_plugin, dados):
+        pass
+
+

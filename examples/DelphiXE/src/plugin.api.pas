@@ -12,6 +12,7 @@ type
   ProcObterConfigs = function(umPlugin:PChar; umaMaquina:Integer): Pchar; stdcall;
   ProcObterFuncao = function (nomeFuncao: PChar):Pointer; stdcall;
   ProcMostrarMensagem = function(plugin, dados:PChar): Integer; stdcall;
+  ProcMostrarTeclado = function(plugin, dados:PChar): PChar; stdcall;
 
   // Funções Exportadas da DLL
   function ObterDadosFabricante(): PChar; stdcall;
@@ -49,6 +50,7 @@ var
   ObterConfigs: ProcObterConfigs;
   GravarConfig: ProcGravarConfig;
   MostrarMensagem: ProcMostrarMensagem;
+  MostrarTeclado: ProcMostrarTeclado;
 
 
 implementation
@@ -95,6 +97,7 @@ begin
   ObterConfigs := ProcObterConfigs(ObterFuncao('ObterConfigs'));
   GravarConfig := ProcGravarConfig(ObterFuncao('GravarConfig'));
   MostrarMensagem := ProcMostrarMensagem(ObterFuncao('MostrarMensagem'));
+  MostrarTeclado := ProcMostrarTeclado(ObterFuncao('MostrarTeclado'));
 end;
 
 procedure Ativar(umaMaquina:Integer); stdcall; export;

@@ -11,6 +11,7 @@ ProcAlocarBuffer AlocarBuffer;
 ProcLiberarBuffer LiberarBuffer;
 ProcObterFuncao ObterFuncao;
 ProcMostrarMensagem MostrarMensagem;
+ProcMostrarTeclado MostrarTeclado;
 
 
 wchar_t* __stdcall Atualizar()
@@ -63,6 +64,7 @@ void __stdcall AtribuirObtencaoDeFuncoes(ProcObterFuncao _ObterFuncao)
 	AlocarBuffer = (ProcAlocarBuffer) ObterFuncao(L"AlocarBuffer");
 	LiberarBuffer = (ProcLiberarBuffer) ObterFuncao(L"LiberarBuffer");
 	MostrarMensagem = (ProcMostrarMensagem) ObterFuncao(L"MostrarMensagem");
+	MostrarTeclado = (ProcMostrarTeclado) ObterFuncao(L"MostrarTeclado");
 }
 
 void __stdcall Configurar(wchar_t* dictMaquinas)
