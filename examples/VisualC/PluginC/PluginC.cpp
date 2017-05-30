@@ -14,11 +14,6 @@ ProcMostrarMensagem MostrarMensagem;
 ProcMostrarTeclado MostrarTeclado;
 
 
-wchar_t* __stdcall Atualizar()
-{
-	return AlocarBuffer(L"");
-}
-
 wchar_t* __stdcall Notificar(wchar_t* evento, wchar_t* contexto)
 {
 	return AlocarBuffer(L"");
@@ -37,7 +32,7 @@ wchar_t* __stdcall ObterDadosFabricante()
        L"\"desenvolvedor\":\"Equipe\","
        L"\"termos_da_licenca\":\"\","
        L"\"direitos_de_copia\":\"\","
-       L"\"marcas_registradas\":\"X® é marca registrada da empresa Y\""
+       L"\"marcas_registradas\":\"XÂ® Ã© marca registrada da empresa Y\""
        L"}, \"suporte\":{"
        L"\"email\":\"suporte@empresa.com\","
        L"\"url\":\"\","
@@ -81,7 +76,7 @@ void __stdcall Desativar(int umaMaquina)
 
 void __stdcall RegistrarAssinaturas(ProcAssinarEvento AssinarEvento)
 {
-	// Este evento é gerado por ítens de interface (menu, botões) adicionados via ui.config
+	// Este evento Ã© gerado por Ã­tens de interface (menu, botÃµes) adicionados via ui.config
 	AssinarEvento(L"PluginC", L"EventoDeUIDePlugin.FuncaoNoPluginCPP");
 }
 

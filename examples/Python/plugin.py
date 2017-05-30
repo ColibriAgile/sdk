@@ -43,15 +43,6 @@ def desativar(maquina):
     logger.debug('plugin desativado na maquina: %d', maquina)
 
     
-def atualizar():
-    try:
-        # Atualize seu plugin aqui
-        pass
-    except Exception as erro:
-        return retornar(erro=str(erro))
-    return ''
-
-
 def configurar_db(servidor, banco, usuario, senha, provedor):
     logger.debug(
         'configurar_db: servidor %s, banco %s, usuario %s, senha %s, provedor %s',

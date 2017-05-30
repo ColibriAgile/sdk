@@ -15,7 +15,6 @@ extern "C" {
 #endif
 void __stdcall Ativar(int umaMaquina);
 void __stdcall AtribuirObtencaoDeFuncoes(ProcObterFuncao _ObterFuncao);
-wchar_t* __stdcall Atualizar();
 void __stdcall Configurar(wchar_t* dictMaquinas);
 void __stdcall ConfigurarDB(wchar_t* umServidor, wchar_t* umBanco, wchar_t* umUsuario, wchar_t* umaSenha, wchar_t* umProvedor);
 void __stdcall Desativar(int umaMaquina);

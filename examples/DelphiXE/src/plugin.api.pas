@@ -3,7 +3,7 @@ unit plugin.api;
 interface
 
 type
-  // Ponteiros de função
+  // Ponteiros de funï¿½ï¿½o
   ProcAssinarEvento = procedure (umPlugin, umEvento: PChar); stdcall;
   ProcCallBack = procedure(umPlugin, umEvento, umContexto: PChar); stdcall;
   ProcAlocarBuffer = function(Buffer: PChar): PChar; stdcall;
@@ -14,11 +14,10 @@ type
   ProcMostrarMensagem = function(plugin, dados:PChar): Integer; stdcall;
   ProcMostrarTeclado = function(plugin, dados:PChar): PChar; stdcall;
 
-  // Funções Exportadas da DLL
+  // Funï¿½ï¿½es Exportadas da DLL
   function ObterDadosFabricante(): PChar; stdcall;
   procedure Ativar(umaMaquina:Integer); stdcall; export;
   procedure AtribuirObtencaoDeFuncoes(_ObterFuncao: ProcObterFuncao); stdcall; export;
-  function Atualizar(): PChar; stdcall;
   procedure Configurar(dictMaquinas:PChar); stdcall; export;
   procedure ConfigurarDB (const umServidor, umBanco, umUsuario, umaSenha, umProvedor: PChar); stdcall;
   procedure Desativar(umaMaquina:Integer); stdcall; export;
@@ -84,7 +83,7 @@ begin
 end;
 procedure RegistrarAssinaturas(AssinarEvento: ProcAssinarEvento); stdcall; export;
 begin
-  // Este evento é gerado por ítens de interface (menu, botões) adicionados via ui.config
+  // Este evento ï¿½ gerado por ï¿½tens de interface (menu, botï¿½es) adicionados via ui.config
   AssinarEvento('plugin.delphi', PChar('EventoDeUIDePlugin.FuncaoNoPlugin'));
 end;
 
@@ -113,11 +112,6 @@ end;
 procedure Configurar(dictMaquinas:PChar); stdcall; export;
 begin
   TfrmConfig.Executar(dictMaquinas);
-end;
-
-function Atualizar(): PChar;
-begin
-  Result := AlocarBuffer('');
 end;
 
 function VerificarVersao(informacao:PChar): PChar; export;

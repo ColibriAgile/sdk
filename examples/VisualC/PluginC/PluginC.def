@@ -2,7 +2,6 @@ LIBRARY PluginC.dll
 EXPORTS
     Ativar
     AtribuirObtencaoDeFuncoes
-    Atualizar
     Configurar
 	ConfigurarDB
     Desativar

@@ -58,7 +58,7 @@ def tk_como_modal(tk, fw_janela=FW_COLIBRI):
 
         # A destruição da janela pelo clique no [X]
         # invoca a função de finalização
-        tk.wm_protocol('WM_DELETE_WINDOW', finaliza)
+        tk.wm_protocol('WM_DELETE_WINDOW', tk.destroy)
 
     # ESC sai do diálogo
     tk.bind('<Escape>', lambda e: tk.destroy())

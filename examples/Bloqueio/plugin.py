@@ -105,7 +105,7 @@ def obter_macro(uma_macro):
         return retornar(erro='Macro desconhecida')
 
 def configurar(maquinas):
-    url = json.loads(obter_configs(PLUGIN_NAME, 0))['configs'].get('url', {}).get('valor', 'http://127.0.0.1:7070/')
+    url = json.loads(obter_configs(PLUGIN_NAME, 0))['configs'].get('url', {}).get('valor', 'http://127.0.0.1:4300/')
     url = dialog.GetSimpleInput(u"url do serviço", url, u"Configuração")
     if url is not None:
         gravar_config(PLUGIN_NAME, 'url', 0, url)

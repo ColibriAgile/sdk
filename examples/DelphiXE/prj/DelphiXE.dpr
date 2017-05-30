@@ -15,7 +15,6 @@ uses
 exports
   Ativar,
   AtribuirObtencaoDeFuncoes,
-  Atualizar,
   Configurar,
   ConfigurarDB,
   Desativar,
