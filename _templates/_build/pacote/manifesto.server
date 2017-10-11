@@ -1,0 +1,15 @@
+{
+   "versao":"1.0.0.0",
+   "arquivos":[
+      {
+         "params_client":"/SP- /SILENT /VERYSILENT /SUPPRESSMSGBOXES /NOCANCEL /NORESTART",
+         "destino":"client",
+         "_pattern_nome":".*\\.exe\\b"
+      }
+   ],
+   "nome":"Plugin",
+   "produto": "pos",
+   "dependencias":{
+      "Colibri": "8.5.*"
+   }
+}
