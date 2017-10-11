@@ -11,7 +11,7 @@ import json
 from importlib import import_module
 from ConfigParser import RawConfigParser
 from collections import namedtuple
-from fabric.api import task, local, puts, prefix
+from fabric.api import task, local, puts, prefix, hide
 from fabric.context_managers import shell_env, _setenv, settings
 from fabric import state
 from distutils.dir_util import copy_tree
@@ -369,7 +369,6 @@ def inno(nome_plugin, versao, extensao):
              "instalado no path e eh a versao unicode.")
         raise
 
-
 @task
 def cmpkg(plugin, versao, develop=True):
     pasta = obter_caminho_plugin(plugin + '/_build/pacote')
@@ -475,6 +474,17 @@ def empacotar_scripts(
                 if retorno == 1:
                     print('Warning (Non fatal error(s)). For example, one or more files were locked by some other application, so they were not compressed.')
 
+
+
+
+try:
+    with hide('output', 'run'):
+        local(r'iscc', capture=True)
+except Exception as e:
+    putsc(
+        "Por favor instale o InnoSetup e certifique-se que o ISCC.exe está no path.")
+    putsc(" Saiba mais em http://www.jrsoftware.org/isdl.php ")
+    exit(-1)
 
 if deve_gerar_config:
     CAMINHO_PLUGINS_DEV = _abs('examples')
