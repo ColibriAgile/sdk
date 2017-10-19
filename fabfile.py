@@ -356,7 +356,7 @@ def empacotar_plugin_py(nome_extensao):
     """
     ext_pluginpy = '.cop'
     caminho = obter_caminho_extensao(nome_extensao)
-    caminhodest = obter_caminho_extensao(nome_extensao + '/_build')
+    caminhodest = obter_caminho_extensao(nome_extensao)
     # preparar_plugin(caminhodest)
 
     # Removo os arquivos compilados da origem (*.pyo, *.pyc)
