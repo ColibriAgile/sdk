@@ -200,7 +200,7 @@ def configurar_empresa():
     NOME_EMPRESA = cam
     lista = filter(lambda x: x.isalnum() or x == ' ', remove_accents(NOME_EMPRESA)).split()
     if len(lista) == 1:
-        SIGLA_EMPRESA = lista[:MAX_SIGLA].upper()
+        SIGLA_EMPRESA = lista[0][:MAX_SIGLA].upper()
     else:
         SIGLA_EMPRESA = ''.join([k[0] for k in lista[:MAX_SIGLA]]).upper()
 
