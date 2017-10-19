@@ -8,8 +8,5 @@
       }
    ],
    "nome":"Plugin",
-   "produto": "pos",
-   "dependencias":{
-      "Colibri": "8.5.*"
-   }
+   "produto": "pos"
 }

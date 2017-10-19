@@ -8,27 +8,32 @@ import fnmatch
 import compileall
 import zipfile
 import json
-from importlib import import_module
+import unicodedata
+import locale
+import requests
+import codecs
 from ConfigParser import RawConfigParser
 from collections import namedtuple
-from fabric.api import task, local, puts, prefix, hide
-from fabric.context_managers import shell_env, _setenv, settings
+from fabric.api import task, local, puts, prefix
+from fabric.context_managers import _setenv, settings
 from fabric import state
-from distutils.dir_util import copy_tree
+from subprocess import call
+from registry import get_value, KEY_READ
 
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 _abs = lambda *x: os.path.join(BASE_PATH, *x)
 
 sys.path.insert(0, BASE_PATH)
 
+deve_gerar_config = False
 try:
-    from config_empacotar import CAMINHO_PLUGINS_DEV, CAMINHO_NCR_COLIBRI, \
-        PREFIXO_EMPRESA
-    CAMINHO_PLUGINS_DEST = os.path.join(CAMINHO_NCR_COLIBRI, 'plugins')
-    deve_gerar_config= False
+    from config_empacotar import CAMINHO_EXT_DEV, \
+        SIGLA_EMPRESA, NOME_EMPRESA
 except Exception as e:
-    deve_gerar_config= True
-
+    CAMINHO_EXT_DEV = _abs('examples')
+    SIGLA_EMPRESA = None
+    NOME_EMPRESA = None
+    deve_gerar_config = True
 
 Dependency = namedtuple('Dependency', 'name link predicate post')
 
@@ -37,10 +42,18 @@ ENV_NAME = 'colibri'
 WORKON = r'workon {}'.format(ENV_NAME)
 WORKON_HOME = os.environ.get('WORKON_HOME')
 WORKON_HOME = os.path.join(WORKON_HOME, ENV_NAME) if WORKON_HOME else ENV_NAME
-
+INNO_SETUP_DOWNLOAD = r'https://s3.amazonaws.com/ncr-colibri/install/innosetup-unicode.exe'
+INNO_REG_PATH = u'HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Inno Setup 5_is1'
+INNO_REG_KEY = u'InstallLocation'
+COLIBRI_REG_PATH = u'HKEY_LOCAL_MACHINE\\Software\\NCR\\Colibri'
+COLIBRI_REG_KEY = u'NCRColibri'
 DEP_CACHE_DIR = '_cache'
 DEP_DEST_DIR = r'{}\Lib\site-packages'.format(WORKON_HOME)
 CHUNK_SIZE = 1024
+try:
+    CAMINHO_INNO = get_value(INNO_REG_PATH, INNO_REG_KEY, KEY_READ)
+except:
+    CAMINHO_INNO = None
 
 
 # A função original em fabric.context_managers  não suporta espaços no nome
@@ -54,11 +67,23 @@ def lcd(path):
     return _setenv({which: new_cwd})
 
 
-def obter_caminho_plugin(pasta=''):
-    caminho = os.path.normpath(os.path.join(CAMINHO_PLUGINS_DEV, pasta))
+def obter_caminho_extensao(pasta=''):
+    caminho = os.path.normpath(os.path.join(CAMINHO_EXT_DEV, pasta))
     return caminho
 
 putsc = lambda x: puts(" {:*^80}".format(x))
+
+
+def remove_accents(input_str):
+    nfkd_form = unicodedata.normalize('NFKD', input_str)
+    only_ascii = nfkd_form.encode('ASCII', 'ignore')
+    return only_ascii
+
+
+def input(strmsg):
+    return raw_input(remove_accents(strmsg)).decode(
+        sys.stdin.encoding or locale.getpreferredencoding(True)
+    )
 
 
 def should_install_pywin32():
@@ -152,44 +177,47 @@ def iniciar_ambiente():
         link_tkinter()
 
 @task
-def gerar_config():
+def configurar_empresa():
     """
-    Configura os caminhos para trabalhar com plugins
+    Configura os dados da empresa
     """
-    putsc('Configuração dos caminhos')
-    global CAMINHO_PLUGINS_DEV, CAMINHO_NCR_COLIBRI, CAMINHO_PLUGINS_DEST, \
-        PREFIXO_EMPRESA
-    cam = raw_input(
-        'Entre a pasta base de projeto dos plugins\n(Default: {})\n>'.format(
-            CAMINHO_PLUGINS_DEV))
+    putsc('Configuração inicial do ambiente de desenvolvedor')
+    global CAMINHO_EXT_DEV, SIGLA_EMPRESA, NOME_EMPRESA
+    cam = input(
+        u'Entre a pasta base de projetos\nEsta é a sua pasta base para os projetos de extensões\n'
+        u'(Default: {})\n>'.format(
+            CAMINHO_EXT_DEV))
     if cam and not os.path.exists(cam):
         print 'Pasta não existe'
         exit(0)
-    CAMINHO_PLUGINS_DEV = cam or CAMINHO_PLUGINS_DEV
-
-    cam = raw_input(
-        'Entre a pasta do NCR colibri \n(Default: {})\n>'.format(
-            CAMINHO_NCR_COLIBRI))
-    if cam and not os.path.exists(cam):
-        print 'Pasta não existe'
-        exit(0)
-    CAMINHO_NCR_COLIBRI = cam or CAMINHO_NCR_COLIBRI
-    CAMINHO_PLUGINS_DEST = os.path.join(CAMINHO_NCR_COLIBRI, 'plugins')
+    CAMINHO_EXT_DEV = cam or CAMINHO_EXT_DEV
 
     while True:
-        cam = raw_input(u'Entre com um prefixo para os plugins da empresa (Max. 5 letras/numeros)\n>').strip()
-        if len(cam) and cam.isalnum():
+        cam = input(u'Entre com o nome da empresa\n>').strip()
+        if len(cam):
+            break
+    MAX_SIGLA = 10
+    NOME_EMPRESA = cam
+    lista = filter(lambda x: x.isalnum() or x == ' ', remove_accents(NOME_EMPRESA)).split()
+    if len(lista) == 1:
+        SIGLA_EMPRESA = lista[:MAX_SIGLA].upper()
+    else:
+        SIGLA_EMPRESA = ''.join([k[0] for k in lista[:MAX_SIGLA]]).upper()
+
+    while True:
+        cam = input(u'Entre com uma Sigla para a Empresa (Max. {} letras/numeros)\nDefault: {}\n>'.format(MAX_SIGLA, SIGLA_EMPRESA)).strip()
+        if len(cam) == 0 or (len(cam) < MAX_SIGLA and cam.isalnum()):
             break
         print 'Prefixo inválido: ', cam
-    PREFIXO_EMPRESA = cam
+    SIGLA_EMPRESA = cam or SIGLA_EMPRESA
 
-    contents = "CAMINHO_PLUGINS_DEV = '{}'\nCAMINHO_NCR_COLIBRI = '{}'\n" \
-               "PREFIXO_EMPRESA = '{}'\n".format(
-        CAMINHO_PLUGINS_DEV, CAMINHO_NCR_COLIBRI, PREFIXO_EMPRESA
+    contents = "# coding: utf-8\n" \
+               "CAMINHO_EXT_DEV = '{}'\n" \
+               "NOME_EMPRESA = '{}'\nSIGLA_EMPRESA = '{}'\n".format(
+        CAMINHO_EXT_DEV, NOME_EMPRESA, SIGLA_EMPRESA
     )
-    with open(_abs(r'config_empacotar.py'), 'w') as out:
+    with codecs.open(_abs(r'config_empacotar.py'), 'w', 'utf-8') as out:
         out.write(contents)
-    CAMINHO_PLUGINS_DEST = os.path.join(CAMINHO_NCR_COLIBRI, 'plugins')
 
 
 def _iniciar_virtualenv():
@@ -199,9 +227,20 @@ def _iniciar_virtualenv():
         local('mkvirtualenv {}'.format(ENV_NAME))
 
 
+def _download_file(url, dest_file):
+    response = requests.get(url, stream=True)
+    _makedirs(dest_file)
+    temp_file = dest_file + '.tmp'
+    with open(temp_file, 'wb') as out:
+        for block in response.iter_content(CHUNK_SIZE):
+            if not block:
+                break
+            out.write(block)
+    os.rename(temp_file, dest_file)
+
+
 def _download():
     puts("*** baixando dependencias")
-    import requests
 
     for dep in DEP_INSTALLERS:
         if dep.predicate and not dep.predicate():
@@ -212,16 +251,8 @@ def _download():
         if os.path.exists(dest_file):
             puts('- File {} already exists'.format(dest_file))
             continue
+        _download_file(dep.link, dest_file)
 
-        response = requests.get(dep.link, stream=True)
-        _makedirs(dest_file)
-        temp_file = dest_file + '.tmp'
-        with open(temp_file, 'wb') as out:
-            for block in response.iter_content(CHUNK_SIZE):
-                if not block:
-                    break
-                out.write(block)
-        os.rename(temp_file, dest_file)
 
 
 def _instalar_dependencias():
@@ -266,7 +297,7 @@ def _criar_link(origem, destino):
     comando = 'mklink /J %s %s' % (destino, origem)
     local(comando)
 
-@task
+
 def link_tkinter():
     for pasta in os.listdir(TCL_PATH):
         cam = os.path.join(TCL_PATH, pasta)
@@ -274,45 +305,59 @@ def link_tkinter():
             _criar_link(cam, os.path.join(WORKON_HOME, 'lib', pasta))
 
 
-def preparar_plugin(caminhodest):
-    if not os.path.exists(caminhodest):
-        with open(_abs('_templates\\_build\\pacote\\manifesto.server'), 'r') as ma:
-            manifesto = json.load(ma)
-        shutil.copytree(_abs('_templates\\_build'), caminhodest)
-        tipo = raw_input('Trata-se de um plugin em python? (S/N)\nDefault: S\n')
-        if tipo.upper() != 'N':
-            shutil.copy2(_abs('_templates\\__version__.py'),
-                         os.path.join(caminhodest, '..\\__version__.py'))
-            shutil.copy2(_abs('_templates\\versao.py'),
-                         os.path.join(caminhodest, '..\\versao.py'))
-            shutil.copy2(_abs('_templates\\__init__.py'),
-                         os.path.join(caminhodest, '..\\__init__.py'))
-        putsc('Informações do plugin')
-        nome = raw_input('Nome do plugin:\n')
-        if nome:
-            manifesto['nome'] = PREFIXO_EMPRESA + '.' + nome
-        nome_exibicao = raw_input('Nome de exibicao do plugin:\n')
-        if nome_exibicao:
-            manifesto['nome_exibicao'] = nome_exibicao
-        produto = raw_input('Produto:\nDefault: pos\n')
-        if produto:
-            manifesto['produto'] = produto
-        with open(os.path.join(caminhodest, 'pacote\\manifesto.server'), 'w+') as ma:
-            json.dump(manifesto, ma)
-
-
-
 @task
-def empacotar_plugin_py(nome_plugin):
+def preparar_extensao(nome_extensao):
     """
-    Empacotar plugin.
+    Cria os arquivos basicos para deploy da extensão
+    :param nome_extensao:
+    :return:
+    """
+    if deve_gerar_config:
+        configurar_empresa()
+
+    caminhodest = obter_caminho_extensao(nome_extensao + '/_build')
+    if os.path.exists(caminhodest):
+        puts(' Já existe a pasta _build no destino')
+        return
+
+    with codecs.open(_abs('_templates\\_build\\pacote\\manifesto.server'), 'r', 'utf-8') as ma:
+        manifesto = json.load(ma)
+    shutil.copytree(_abs('_templates\\_build'), caminhodest)
+    tipo = input('É uma extensão do tipo plugin em Python? (S/N)\nDefault: N\n>')
+    if tipo.upper() == 'S':
+        shutil.copy2(_abs('_templates\\versao.py'),
+                     os.path.join(caminhodest, '..\\versao.py'))
+        shutil.copy2(_abs('_templates\\__init__.py'),
+                     os.path.join(caminhodest, '..\\__init__.py'))
+    shutil.copy2(_abs('_templates\\versao.ini'),
+                 os.path.join(caminhodest, '..\\versao.ini'))
+    putsc('Informações da extensão')
+    def_nome = nome_extensao.capitalize()
+    nome = input('Nome da extensão:\nDefault: {}\n>'.format(def_nome)) or def_nome
+    manifesto['sigla_empresa'] = SIGLA_EMPRESA
+    manifesto['empresa'] = NOME_EMPRESA
+    if nome:
+        manifesto['nome'] = SIGLA_EMPRESA + '.' + nome
+    nome_exibicao = input('Nome de exibicao da extensão:\n>')
+    if nome_exibicao:
+        manifesto['nome_exibicao'] = nome_exibicao
+    produto = input('Produto: (pos/cbo/master)\nDefault: pos\n')
+    if produto:
+        manifesto['produto'] = produto
+    with codecs.open(os.path.join(caminhodest, 'pacote\\manifesto.server'), 'w+', 'utf-8') as ma:
+        json.dump(manifesto, ma, indent=2)
+
+
+def empacotar_plugin_py(nome_extensao):
+    """
+    Empacotar plugin Python em um arquivo COP.
 
     Gera o arquivo 'cop' com o plugin empacotado no diretorio de binarios
     """
     ext_pluginpy = '.cop'
-    caminho = obter_caminho_plugin(nome_plugin)
-    caminhodest = obter_caminho_plugin(nome_plugin + '/_build')
-    preparar_plugin(caminhodest)
+    caminho = obter_caminho_extensao(nome_extensao)
+    caminhodest = obter_caminho_extensao(nome_extensao + '/_build')
+    # preparar_plugin(caminhodest)
 
     # Removo os arquivos compilados da origem (*.pyo, *.pyc)
     for root, dirnames, filenames in os.walk(caminho):
@@ -321,173 +366,200 @@ def empacotar_plugin_py(nome_plugin):
             os.unlink(arq)
 
     # Compilo os pythons, isso dá eficiência pois o pacote já terá bytecodes
-    compileall.compile_dir(caminho, ddir='.' + nome_plugin, force=True)
+    compileall.compile_dir(caminho, ddir='.' + nome_extensao, force=True)
     # Apago os arquivos .cop do diretório de destino do plugin
     for arq in glob.glob(os.path.join(caminhodest, '*.cop')):
         os.unlink(arq)
     # Agora gero o zip com o diretório dentro referente a este pacote
     zipdest = os.path.join(
-        caminhodest, 'plugin.' + nome_plugin.lower() + ext_pluginpy)
+        caminhodest, 'plugin.' + nome_extensao.lower() + ext_pluginpy)
     print('Gerando: ' + zipdest)
     with zipfile.ZipFile(zipdest, "w") as arqzip:
         for root, dirnames, filenames in os.walk(caminho):
             for filename in fnmatch.filter(filenames, '*.py*'):
                 arq = os.path.join(root, filename)
-                dest = nome_plugin + '\\' + arq[len(caminho):]
+                dest = nome_extensao + '\\' + arq[len(caminho):]
                 arqzip.write(arq, dest)
 
-    # copia para a pasta ncr-colibri
-    cam = '../ncr-colibri/plugins/' + nome_plugin
-    if not os.path.exists(cam):
-        os.makedirs(cam)
-    shutil.copy2(zipdest, cam)
 
+def inno(nome_extensao, versao):
+    """
+    Compila o inno setup para a extensão.
+    :param nome_extensao:
+    :param versao:
+    :return:
+    """
 
-@task
-def inno(nome_plugin, versao, extensao):
-    for f in glob.glob(obter_caminho_plugin(nome_plugin + '/_build/pacote/*.exe')):
+    if CAMINHO_INNO == None:
+        puts('Inno setup não encontrado. Execute:\n\n >fab instalar_innosetup\n')
+        exit(-1)
+
+    for f in glob.glob(obter_caminho_extensao(nome_extensao + '/_build/pacote/*.exe')):
         os.unlink(f)
+
+    try:
+        with codecs.open(
+                obter_caminho_extensao(
+                    nome_extensao + '\\_build\\pacote\\manifesto.server'
+                ), 'r', 'utf-8') as ma:
+            nome_exibicao =  ma['nome_exibicao']
+    except:
+        nome_exibicao = nome_extensao
+
     def parametros():
         params = dict(
-            AppName=nome_plugin,
+            AppName=nome_exibicao,
             AppVersion=versao,
-            Extensao=extensao,
         )
         return ' '.join(
             '/d{}=\"{}\"'.format(k, v) for k, v in params.items()
             )
 
     try:
-        local(
-            r'iscc {params} {iss}'.format(
-                iss=obter_caminho_plugin(nome_plugin + '/_build/plugin.iss'),
-                params=parametros()
+        with lcd(obter_caminho_extensao(nome_extensao)):
+            local(
+                '"' +os.path.join(CAMINHO_INNO, 'iscc') + '"' +
+                r' {params} {iss}'.format(
+                    iss=obter_caminho_extensao(nome_extensao + '/_build/extensao.iss'),
+                    params=parametros()
+                )
             )
-        )
     except:
         puts("Falha ao executar o inno setup compiler. Verifique se esta "
              "instalado no path e eh a versao unicode.")
         raise
 
-@task
-def cmpkg(plugin, versao, develop=True):
-    pasta = obter_caminho_plugin(plugin + '/_build/pacote')
-    pasta_saida= obter_caminho_plugin(plugin + '/_build/temp')
+def cmpkg(nome_extensao, versao, develop=True):
+    """
+    Gera um pacote cmpkg para a extensão.
+    :param nome_extensao:
+    :param versao:
+    :param develop:
+    :return:
+    """
+    pasta = obter_caminho_extensao(nome_extensao + '/_build/pacote')
+    pasta_saida= obter_caminho_extensao(nome_extensao + '/_build/temp')
     if not os.path.exists(pasta_saida):
         os.makedirs(pasta_saida)
     if not os.path.exists(pasta + '/manifesto.server'):
         shutil.copy2('manifesto.server', pasta)
     with prefix(WORKON):
         local(
-            'python -m colibri-packaging "{pasta}" --pasta_saida "{pasta_saida}" '
+            'python -m colibri_packaging "{pasta}" --pasta_saida "{pasta_saida}" '
             '--versao {versao} --develop {develop}'.format(
                 pasta=pasta, pasta_saida=pasta_saida, 
-                versao=versao, nome=plugin, develop=develop
+                versao=versao, nome=nome_extensao, develop=develop
             )
         )
 
-def compilar_plugin_delphi(plugin):
-    """
-    Exemplo de compilaçao do plugin em dll
-    """
-    path = obter_caminho_plugin(plugin)
-    p = dict(
-        dcc32 = "C:\\Program Files (x86)\\Embarcadero\\RAD Studio\\9.0\\bin\\dcc32.exe" ,
-        projeto = "plugin.{plugin}.dpr".format(plugin=plugin),
-        delphi_lib = '"C:\\Program Files (x86)\\Embarcadero\\RAD Studio\\9.0\\lib\\Win32\\release";D:\\Vcl\\xe2bpl;D:\\Vcl\\xe2lib\\;D:\\Drive\\Vcl\\xe2bpl;D:\\Drive\\Vcl\\xe2lib\\;',
-        colibri_lib = 'D:\\Vcl\\co2lib\\;D:\\Builder\\plugins\\;',
-        pasta_dcu = '{path}\\dcu\\'.format(path=path),
-        pasta_saida = '{path}\\_build\\'.format(path=path),
-        unit_scope = 'System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;Winapi;Data.win;'
-    )
-    # cria a pasta dcu
-    if not os.path.exists(p['pasta_dcu']):
-        os.makedirs(p['pasta_dcu'])
-    # compila o projeto 
-    cmd = ' "{dcc32}" {projeto} -H -B -Q -U{delphi_lib}{colibri_lib} -N{pasta_dcu} -E{pasta_saida} -NS{unit_scope}'.format(**p)
-    with lcd(path + '\\prj'):
-        local(cmd)
-
-def coletar_versao_plugin_delphi(plugin):
-    # Colete a versão de um arquivo do seu projeto
-    return '1.0.0.0'
-
 
 @task
-def empacotar(plugin, develop=True, pasta_saida=None, build_number=None):
+def empacotar(nome_extensao, develop=True, build_number=None):
+    """
+    Gera COP, efetua o inno setup e cria o pacote cmpkg de instalacao
+    :param nome_extensao: Nome da extensão
+    :param develop: Modo develop (usado no cmpkg)
+    :param build_number: Número do build
+    :return:
+    """
+    empacotar_scripts(nome_extensao)
+    versaoinfo = __ler_versaoinfo(nome_extensao, develop, build_number)
+    versao = __get_version_str(versaoinfo)
+    # É um plugin em python?
+    if os.path.exists(obter_caminho_extensao(nome_extensao + '\\__init__.py')):
+        __gerar_versoes_py(nome_extensao, versaoinfo)
+        empacotar_plugin_py(nome_extensao)
+        inno(nome_extensao, versao)
+    else:
+        inno(nome_extensao, versao)
+    cmpkg(nome_extensao, versao, versaoinfo['develop'])
+
+
+def __ler_versaoinfo(nome_extensao, develop, build):
+    try:
+        build = int(build)
+    except:
+        build = 0
+
     if type(develop) == str:
         develop = develop.lower() in ['true', '1', 'T']
 
-    empacotar_scripts(plugin)
-
-    caminhodest = obter_caminho_plugin(plugin + '/_build')
-    preparar_plugin(caminhodest)
-
-    # É um plugin em python?
-    if os.path.exists(obter_caminho_plugin(plugin + '\\__init__.py')):
-        versao = _generate_buildfile_py(plugin, build_number, str(develop))
-        empacotar_plugin_py(plugin)
-        inno(plugin, versao, '.cop')
-    else:
-        versao = coletar_versao_plugin_delphi(plugin)
-        compilar_plugin_delphi(plugin)
-        inno(plugin, versao, '.col')
-    cmpkg(plugin, versao, develop=develop)
+    with open(obter_caminho_extensao(nome_extensao + r'\versao.ini'), 'r') as vi:
+        config = RawConfigParser()
+        config.readfp(vi)
+        if config.has_section('versaoinfo'):
+            itens = dict(config.items('versaoinfo'))
+            itens['build'] = build
+            itens['develop'] = develop
+            return itens
 
 
-def _generate_buildfile_py(plugin, build_number='1', develop='True'):
+def __get_version_str(versaoinfo):
+    return '{majorversion}.{minorversion}.{release}.{build}'.format(**versaoinfo)
+
+
+def __gerar_versoes_py(nome_extensao, versaoinfo):
     try:
-        build_number = int(build_number)
-    except:
-        build_number = 0
+        contents = "MajorVersion = {majorversion}\n" \
+                   "MinorVersion = {minorversion}\n" \
+                   "Release = {release}\n".format(**versaoinfo)
+        with open(obter_caminho_extensao(nome_extensao + r'\__version__.py'), 'w') as out:
+            out.write(contents)
 
-    contents = "Build = {}\nDevelop = {}\n".format(
-        build_number, develop
-    )
-    with open(obter_caminho_plugin(plugin + r'\__buildnumber__.py'), 'w') as out:
-        out.write(contents)
-
-    sys.path.append(obter_caminho_plugin(plugin))
-    versao = import_module('versao')
-    return versao.version_info()['fileversion']
+        contents = "Build = {build}\nDevelop = {develop}\n".format(
+            **versaoinfo
+        )
+        with open(obter_caminho_extensao(nome_extensao + r'\__build__.py'), 'w') as out:
+            out.write(contents)
+    except Exception as e:
+        puts('Falha ao gerar informacao de versão para o plugin Python: ' + e)
 
 
-@task
-def empacotar_scripts(
-        plugin
-    ):
+def empacotar_scripts(nome_extensao):
+    """
+    Gera os scripts para a extensão
+    :param nome_extensao:
+    :return:
+    """
     with prefix(WORKON):
-        destino = obter_caminho_plugin(plugin + '\\_build\\pacote\\_scripts.zip')
+        from colibri_packaging import CAM_7ZA
+        destino = obter_caminho_extensao(nome_extensao + '\\_build\\pacote\\_scripts.zip')
         with settings(warn_only=True):
             local('del "{}"'.format(destino))
 
-        cam_scripts = obter_caminho_plugin(plugin + '\\_scripts\\')
+        cam_scripts = obter_caminho_extensao(nome_extensao + '\\_scripts\\')
         if not os.path.exists(cam_scripts):
             return
 
         with lcd(cam_scripts):
             with settings(warn_only=True):
                 retorno = local(
-                    obter_caminho_plugin(r"7za.exe") +
+                    CAM_7ZA +
                     ' a -tzip "{destino}" -mcu *'.format(destino=destino)
                 )
                 if retorno == 1:
                     print('Warning (Non fatal error(s)). For example, one or more files were locked by some other application, so they were not compressed.')
 
 
-
-
-try:
-    with hide('output', 'run'):
-        local(r'iscc', capture=True)
-except Exception as e:
-    putsc(
-        "Por favor instale o InnoSetup e certifique-se que o ISCC.exe está no path.")
-    putsc(" Saiba mais em http://www.jrsoftware.org/isdl.php ")
-    exit(-1)
-
-if deve_gerar_config:
-    CAMINHO_PLUGINS_DEV = _abs('examples')
-    CAMINHO_NCR_COLIBRI = r'c:\NCR Colibri'
-    PREFIXO_EMPRESA = ''
-    gerar_config()
+@task
+def instalar_innosetup():
+    """
+    Instala o compilador innosetup unicode nesta máquina.
+    :return:
+    """
+    dest_file = _abs('isccsetup.exe')
+    try:
+        os.unlink(dest_file)
+    except:
+        pass
+    putsc('Innosetup')
+    puts(' Baixando...')
+    puts(' Ao instalar mantenha o "Install Inno Setup Preprocessor" marcado')
+    _download_file(INNO_SETUP_DOWNLOAD, dest_file)
+    puts(' Instalando...')
+    ret = call(dest_file, shell=True)
+    if ret == 0:
+        puts(' Instalado com sucesso')
+    else:
+        puts(' Falhou com erro: {}'.format(ret))
+    return ret

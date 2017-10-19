@@ -5,4 +5,4 @@ adodbapi==2.6.0.7
 altgraph==0.9
 simplejson==3.8.1
 pyserial==2.7
-colibri-packaging==0.1.0.2
+colibri-packaging==0.1.0.3
