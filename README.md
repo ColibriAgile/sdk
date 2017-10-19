@@ -1,20 +1,21 @@
-# SDK de Plugins do Colibri #
+# SDK de Extensões do Colibri #
 
 ### O que é? ###
 
-Trata-se do SDK básico para desenvolver Plugins para o Colibri
+Trata-se do SDK básico para desenvolver Extensões para o Colibri
 
 ### O que está incluído? ###
 
-* Projetos de plugins básicos em C/C++, Delphi e Python
+* Projetos de Plugins básicos em C/C++, Delphi e Python
 * Comandos para montagem de ambiente e empacotamento de plugins em Python
+* Comandos param preparação de uma extensão para deploy
 * Instalador do plugin monitor de eventos e contextos
 * Código do plugin monitor de eventos
-* Código de instalador de plugin (Inno setup)
+* Exemplo de código de instalador de plugin (Inno setup)
 
 ### Links ###
 
-[Portal do SDK de Plugins](https://wiki.colibri.ncr.com/x/nQCKBQ) (Requer senha de acesso)
+[Portal do SDK de Plugins](http://wiki.ncrcolibri.com.br/display/plugin)
 
 ### Contato ###
 
