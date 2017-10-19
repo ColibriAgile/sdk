@@ -560,6 +560,8 @@ def instalar_innosetup():
     ret = call(dest_file, shell=True)
     if ret == 0:
         puts(' Instalado com sucesso')
+        puts(' Apagando o arquivo...')
+        os.unlink(dest_file)
     else:
         puts(' Falhou com erro: {}'.format(ret))
     return ret
