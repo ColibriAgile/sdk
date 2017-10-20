@@ -149,7 +149,7 @@ DEP_INSTALLERS = (
 @task
 def iniciar_ambiente():
     """
-    Monta ambiente de python do Colibri
+    Monta ambiente de Python do Colibri
     """
     putsc(" iniciando ambiente com dependencias ")
     _iniciar_virtualenv()
@@ -348,6 +348,7 @@ def preparar_extensao(nome_extensao):
         json.dump(manifesto, ma, indent=2)
 
 
+@task
 def empacotar_plugin_py(nome_extensao):
     """
     Empacotar plugin Python em um arquivo COP.
@@ -382,7 +383,7 @@ def empacotar_plugin_py(nome_extensao):
                 arqzip.write(arq, dest)
 
 
-def inno(nome_extensao, versao):
+def compilar_inno(nome_extensao, versao):
     """
     Compila o inno setup para a extensão.
     :param nome_extensao:
@@ -429,7 +430,7 @@ def inno(nome_extensao, versao):
              "instalado no path e eh a versao unicode.")
         raise
 
-def cmpkg(nome_extensao, versao, develop=True):
+def gerar_cmpkg(nome_extensao, versao, develop=True):
     """
     Gera um pacote cmpkg para a extensão.
     :param nome_extensao:
@@ -469,10 +470,8 @@ def empacotar(nome_extensao, develop=True, build_number=None):
     if os.path.exists(obter_caminho_extensao(nome_extensao + '\\__init__.py')):
         __gerar_versoes_py(nome_extensao, versaoinfo)
         empacotar_plugin_py(nome_extensao)
-        inno(nome_extensao, versao)
-    else:
-        inno(nome_extensao, versao)
-    cmpkg(nome_extensao, versao, versaoinfo['develop'])
+    compilar_inno(nome_extensao, versao)
+    gerar_cmpkg(nome_extensao, versao, versaoinfo['develop'])
 
 
 def __ler_versaoinfo(nome_extensao, develop, build):
