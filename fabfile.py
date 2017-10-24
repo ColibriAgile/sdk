@@ -315,7 +315,7 @@ def preparar_extensao(nome_extensao):
             break
         puts('Nome inválido')
     nome_exibicao = input('Nome de exibicao da extensão:\n>')
-    produto = input('Produto: (pos/cbo/master)\nDefault: pos\n')
+    produto = input('Produto: (pos/cbo/master)\nDefault: pos\n').strip() or 'pos'
 
     shutil.copytree(_abs('_templates\\_build'), caminhodest)
     if tipo.upper() == 'S':
