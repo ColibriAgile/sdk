@@ -12,6 +12,7 @@ import unicodedata
 import locale
 import requests
 import codecs
+import string
 from ConfigParser import RawConfigParser
 from collections import namedtuple
 from fabric.api import task, local, puts, prefix
@@ -301,10 +302,22 @@ def preparar_extensao(nome_extensao):
         puts(' Já existe a pasta _build no destino')
         return
 
-    with codecs.open(_abs('_templates\\_build\\pacote\\manifesto.server'), 'r', 'utf-8') as ma:
-        manifesto = json.load(ma)
-    shutil.copytree(_abs('_templates\\_build'), caminhodest)
+    putsc('Informações da extensão')
     tipo = input('É uma extensão do tipo plugin em Python? (S/N)\nDefault: N\n>')
+    def_nome = nome_extensao.capitalize()
+    while True:
+        validos = string.ascii_letters + string.digits + '_'
+        nome = input(
+            'Nome da extensão (letras, números ou _):\n'
+            'Default: {}\n>'.format(def_nome)
+        ) or def_nome
+        if all(c in validos for c in nome):
+            break
+        puts('Nome inválido')
+    nome_exibicao = input('Nome de exibicao da extensão:\n>')
+    produto = input('Produto: (pos/cbo/master)\nDefault: pos\n')
+
+    shutil.copytree(_abs('_templates\\_build'), caminhodest)
     if tipo.upper() == 'S':
         shutil.copy2(_abs('_templates\\versao.py'),
                      os.path.join(caminhodest, '..\\versao.py'))
@@ -312,19 +325,15 @@ def preparar_extensao(nome_extensao):
                      os.path.join(caminhodest, '..\\__init__.py'))
     shutil.copy2(_abs('_templates\\versao.ini'),
                  os.path.join(caminhodest, '..\\versao.ini'))
-    putsc('Informações da extensão')
-    def_nome = nome_extensao.capitalize()
-    nome = input('Nome da extensão:\nDefault: {}\n>'.format(def_nome)) or def_nome
+
+    # Grava o manifesto.server
+    with codecs.open(_abs('_templates\\_build\\pacote\\manifesto.server'), 'r', 'utf-8') as ma:
+        manifesto = json.load(ma)
     manifesto['sigla_empresa'] = SIGLA_EMPRESA
     manifesto['empresa'] = NOME_EMPRESA
-    if nome:
-        manifesto['nome'] = SIGLA_EMPRESA + '.' + nome
-    nome_exibicao = input('Nome de exibicao da extensão:\n>')
-    if nome_exibicao:
-        manifesto['nome_exibicao'] = nome_exibicao
-    produto = input('Produto: (pos/cbo/master)\nDefault: pos\n')
-    if produto:
-        manifesto['produto'] = produto
+    manifesto['nome'] = SIGLA_EMPRESA + '-' + nome
+    manifesto['nome_exibicao'] = nome_exibicao
+    manifesto['produto'] = produto
     with codecs.open(os.path.join(caminhodest, 'pacote\\manifesto.server'), 'w+', 'utf-8') as ma:
         json.dump(manifesto, ma, indent=2)
 
