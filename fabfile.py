@@ -99,19 +99,6 @@ def should_install_pywin32():
     return bool(res.strip())
 
 
-def should_install_pyodbc():
-    """
-    Predicate function that must return True if the package pyodbc is required.
-    """
-    res = local(
-        'python -c "exec(\'try: import pyodbc'
-        '\\nexcept: print 1\')"',
-        capture=True
-    )
-    # res will have value 1 if python could not import win32com
-    return bool(res.strip())
-
-
 def post_install_pywin32():
     post_script_dir = _abs('SCRIPTS')
     if not os.path.exists(post_script_dir):
@@ -125,17 +112,11 @@ def post_install_pywin32():
 DEP_INSTALLERS = (
     Dependency(
         name='pywin32-219.win32-py2.7.exe',
-        link='http://downloads.sourceforge.net/project/pywin32/pywin32/'
+        link='https://downloads.sourceforge.net/project/pywin32/pywin32/'
              'Build%20219/pywin32-219.win32-py2.7.exe?r=&ts=1432061293'
              '&use_mirror=iweb',
         predicate=should_install_pywin32,
         post=post_install_pywin32
-    ),
-    Dependency(
-        name='pyodbc-3.0.7.win32-py2.7.exe',
-        link='https://pyodbc.googlecode.com/files/pyodbc-3.0.7.win32-py2.7.exe',
-        predicate=should_install_pyodbc,
-        post=None
     ),
     Dependency(
         name='pycrypto-2.6.1.win32-py2.7.exe',
@@ -514,30 +495,39 @@ def __gerar_versoes_py(nome_extensao, versaoinfo):
         puts('Falha ao gerar informacao de versão para o plugin Python: ' + e)
 
 
-def empacotar_scripts(nome_extensao):
+@task
+def empacotar_scripts(nome_extensao, from_virtualenv=False):
     """
     Gera os scripts para a extensão
     :param nome_extensao:
     :return:
     """
-    with prefix(WORKON):
-        from colibri_packaging import CAM_7ZA
-        destino = obter_caminho_extensao(nome_extensao + '\\_build\\pacote\\_scripts.zip')
+    if from_virtualenv == 'True':
+        _empacotar_scripts(nome_extensao)
+    else:
+        with prefix(WORKON):
+            local('fab empacotar_scripts:{},from_virtualenv=True'.format(nome_extensao))
+
+
+def _empacotar_scripts(nome_extensao):
+    from colibri_packaging import CAM_7ZA
+    destino = obter_caminho_extensao(nome_extensao + '\\_build\\pacote\\_scripts.zip')
+    with settings(warn_only=True):
+        local('del "{}"'.format(destino))
+
+    cam_scripts = obter_caminho_extensao(nome_extensao + '\\_scripts\\')
+    if not os.path.exists(cam_scripts):
+        puts('Não há scripts a empacotar')
+        return
+
+    with lcd(cam_scripts):
         with settings(warn_only=True):
-            local('del "{}"'.format(destino))
-
-        cam_scripts = obter_caminho_extensao(nome_extensao + '\\_scripts\\')
-        if not os.path.exists(cam_scripts):
-            return
-
-        with lcd(cam_scripts):
-            with settings(warn_only=True):
-                retorno = local(
-                    CAM_7ZA +
-                    ' a -tzip "{destino}" -mcu *'.format(destino=destino)
-                )
-                if retorno == 1:
-                    print('Warning (Non fatal error(s)). For example, one or more files were locked by some other application, so they were not compressed.')
+            retorno = local(
+                CAM_7ZA +
+                ' a -tzip "{destino}" -mcu *'.format(destino=destino)
+            )
+            if retorno == 1:
+                print('Warning (Non fatal error(s)). For example, one or more files were locked by some other application, so they were not compressed.')
 
 
 @task
