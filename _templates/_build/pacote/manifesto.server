@@ -1,5 +1,4 @@
 {
-   "versao":"1.0.0.0",
    "arquivos":[
       {
          "params_client":"/SP- /SILENT /VERYSILENT /SUPPRESSMSGBOXES /NOCANCEL /NORESTART",
