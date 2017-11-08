@@ -1,5 +1,8 @@
 # coding: utf-8
-from _winreg import *  # NOQA
+try:
+    from _winreg import *  # NOQA
+except ImportError:
+    from winreg import *
 
 
 roots_hives = {

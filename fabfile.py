@@ -1,5 +1,6 @@
 # coding: utf-8
 from __future__ import unicode_literals
+from __future__ import print_function
 import os
 import sys
 import shutil
@@ -13,7 +14,10 @@ import locale
 import requests
 import codecs
 import string
-from ConfigParser import RawConfigParser
+try:
+    from ConfigParser import RawConfigParser
+except ImportError:
+    from configparser import RawConfigParser
 from collections import namedtuple
 from fabric.api import task, local, puts, prefix
 from fabric.context_managers import _setenv, settings
@@ -21,6 +25,8 @@ from fabric import state
 from subprocess import call
 from registry import get_value, KEY_READ
 
+
+PY3 = sys.version_info > (3,)
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 _abs = lambda *x: os.path.join(BASE_PATH, *x)
 
@@ -38,11 +44,14 @@ except Exception as e:
 
 Dependency = namedtuple('Dependency', 'name link predicate post')
 
-TCL_PATH = r'c:\python27\tcl'
 ENV_NAME = 'colibri'
 WORKON = r'workon {}'.format(ENV_NAME)
 WORKON_HOME = os.environ.get('WORKON_HOME')
-WORKON_HOME = os.path.join(WORKON_HOME, ENV_NAME) if WORKON_HOME else ENV_NAME
+if not WORKON_HOME:
+    puts('Por favor crie a variável de ambiente WORKON_HOME conforme documentação')
+    exit(1)
+WORKON_HOME = os.path.join(WORKON_HOME, ENV_NAME)
+TCL_PATH = r'C:\Python36\tcl'
 INNO_SETUP_DOWNLOAD = r'https://s3.amazonaws.com/ncr-colibri/install/innosetup-unicode.exe'
 INNO_REG_PATH = u'HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Inno Setup 5_is1'
 INNO_REG_KEY = u'InstallLocation'
@@ -82,6 +91,9 @@ def remove_accents(input_str):
 
 
 def input(strmsg):
+    if PY3:
+        import builtins
+        return builtins.input(strmsg)
     return raw_input(remove_accents(strmsg)).decode(
         sys.stdin.encoding or locale.getpreferredencoding(True)
     )
@@ -91,11 +103,12 @@ def should_install_pywin32():
     """
     Predicate function that must return True if the package win32 is required.
     """
-    res = local(
-        'python -c "exec(\'try: import win32com'
-        '\\nexcept: print 1\')"',
-        capture=True
-    )
+    with prefix(WORKON):
+        res = local(
+            'python -c "exec(\'try: import win32com'
+            '\\nexcept: print(1)\')"',
+            capture=True
+        )
     # res will have value 1 if python could not import win32com
     return bool(res.strip())
 
@@ -106,24 +119,18 @@ def post_install_pywin32():
         return
     post_script = _abs(r'SCRIPTS\pywin32_postinstall.py')
     puts("Aviso: **** Se o comando a seguir falhar, execute-o como administrador")
-    local('python "{}" -install'.format(post_script))
+    with prefix(WORKON):
+        local('python "{}" -install'.format(post_script))
     shutil.rmtree(post_script_dir)
 
 
 DEP_INSTALLERS = (
     Dependency(
-        name='pywin32-219.win32-py2.7.exe',
-        link='https://downloads.sourceforge.net/project/pywin32/pywin32/'
-             'Build%20219/pywin32-219.win32-py2.7.exe?r=&ts=1432061293'
-             '&use_mirror=iweb',
+        name='pywin32-221.win32-py3.6.exe',
+        link='http://iweb.dl.sourceforge.net/project/pywin32/pywin32/'
+             'Build%20221/pywin32-221.win32-py3.6.exe',
         predicate=should_install_pywin32,
         post=post_install_pywin32
-    ),
-    Dependency(
-        name='pycrypto-2.6.1.win32-py2.7.exe',
-        link='http://www.voidspace.org.uk/python/pycrypto-2.6.1/pycrypto-2.6.1.win32-py2.7.exe',
-        predicate=None,
-        post=None
     ),
 )
 
@@ -137,24 +144,10 @@ def iniciar_ambiente():
     _iniciar_virtualenv()
     local('pip install requests')
 
-    if WORKON_HOME not in sys.executable:
-        global TCL_PATH
-        TCL_PATH = os.path.join(os.path.split(sys.executable)[0], 'tcl')
-
     with prefix(WORKON):
         _download()
         _instalar_dependencias()
         local(r'pip install -r {}'.format(_abs('requirements_dev.txt')))
-        for arq in glob.glob(_abs('pythonnet-2.0\\*.*')):
-            shutil.copy(arq, DEP_DEST_DIR)
-
-        dest = os.path.join(DEP_DEST_DIR, 'yaml')
-        try:
-            os.mkdir(dest)
-        except:
-            pass
-        for arq in glob.glob(_abs('yaml\\*.*')):
-            shutil.copy(arq, os.path.join(dest, os.path.split(arq)[1]))
 
         link_tkinter()
 
@@ -170,7 +163,7 @@ def configurar_empresa():
         u'(Default: {})\n>'.format(
             CAMINHO_EXT_DEV))
     if cam and not os.path.exists(cam):
-        print 'Pasta não existe'
+        print('Pasta não existe')
         exit(0)
     CAMINHO_EXT_DEV = cam or CAMINHO_EXT_DEV
 
@@ -190,7 +183,7 @@ def configurar_empresa():
         cam = input(u'Entre com uma Sigla para a Empresa (Max. {} letras/numeros)\nDefault: {}\n>'.format(MAX_SIGLA, SIGLA_EMPRESA)).strip()
         if len(cam) == 0 or (len(cam) < MAX_SIGLA and cam.isalnum()):
             break
-        print 'Prefixo inválido: ', cam
+        print('Prefixo inválido: ', cam)
     SIGLA_EMPRESA = cam or SIGLA_EMPRESA
 
     contents = "# coding: utf-8\n" \
@@ -204,9 +197,21 @@ def configurar_empresa():
 
 def _iniciar_virtualenv():
     res = local(WORKON, capture=True)
+    criar = False
     if 'does not exist' in res:
         puts('virtualenv nao existe, criando...')
-        local('mkvirtualenv {}'.format(ENV_NAME))
+        criar = True
+    else:
+        with prefix(WORKON):
+            res = local('python -c "import sys;print(sys.version)"', capture=True)
+        puts('virtual env em ' + res)
+        if res.startswith('2.7'):
+            puts('Versão 2.7, apagando...')
+            shutil.rmtree(WORKON_HOME, True)
+            puts('criando...')
+            criar = True
+    if criar:
+        local('py -3 -m venv {} --copies'.format(WORKON_HOME))
 
 
 def _download_file(url, dest_file):
