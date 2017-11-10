@@ -60,7 +60,7 @@ class DlgLiberaMesa(dialog.Dialog):
             self.retorno = int(self.edtMesa.GetWindowText())
             self.EndDialog(win32con.IDCANCEL)
         except Exception as e:
-            self.MessageBox(e.message, 'Erro!', win32con.MB_OK)
+            self.MessageBox(str(e), 'Erro!', win32con.MB_OK)
 
     def click_cancelar(self, id, code):
         self.EndDialog(win32con.IDCANCEL)

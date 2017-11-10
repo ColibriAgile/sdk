@@ -3,9 +3,10 @@ import json
 from pywin.mfc import dialog
 import win32ui
 import win32con
-from dialog_mfc import DlgLiberaMesa
-from dialog_tk import liberar_mesa
-from colibri_gui import mfc_do_modal
+from .dialog_mfc import DlgLiberaMesa
+from .dialog_tk import liberar_mesa
+from .colibri_gui import mfc_do_modal
+from .versao import VERSION
 
 
 try:
@@ -22,8 +23,8 @@ except ImportError:
 
 
 # Nome e versão do Plugin, obrigatórios
-PLUGIN_NAME = u'Bloqueio de Mesas'.encode('cp1252')
-PLUGIN_VERSION = '1.0.0.0'
+PLUGIN_NAME = u'Bloqueio de Mesas'
+PLUGIN_VERSION = VERSION
 
 DADOS_FABRICANTE = {
     "fabricante":
@@ -44,7 +45,7 @@ DADOS_FABRICANTE = {
 
 
 def retornar(**kwargs):
-    return json.dumps(kwargs).decode('utf-8').encode('cp1252')
+    return json.dumps(kwargs)
 
 
 # Funções obrigatórias

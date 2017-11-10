@@ -25,12 +25,5 @@ def criar_logger(logger_name, log_file, level=logging.DEBUG):
     return l
 
 
-# codifica um string de retorno para cp1252, encoding conhecido pelo Colibri
-def codifica_retorno(texto):
-    if isinstance(texto, unicode):
-        return texto.encode('cp1252')
-    return texto.decode('utf-8').encode('cp1252')
-
-
 def retornar(**kwargs):
-    return codifica_retorno(json.dumps(kwargs))
+    return json.dumps(kwargs)

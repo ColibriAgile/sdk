@@ -1,7 +1,10 @@
 # coding: utf-8
-from Tkinter import Tk, Label, Button, mainloop, Entry
-from tkMessageBox import showwarning
-from colibri_gui import tk_como_modal, tk_botao_default, FW_GER_PLUGINS
+try:
+    from tkinter import Tk, Label, Button, mainloop, Entry
+    from tkinter.messagebox import showwarning
+except ImportError:
+    raise ImportError("tkinter")
+from .colibri_gui import tk_como_modal, tk_botao_default, FW_GER_PLUGINS
 
 LETRA = "Verdana 12"
 

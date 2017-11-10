@@ -1,7 +1,7 @@
 ﻿# coding: utf-8
 import json
 import os
-from util import obter_caminho_plugin, criar_logger, codifica_retorno, retornar
+from util import obter_caminho_plugin, criar_logger, retornar
 from colibri_mod import callback, assinar_evento, obter_configs, gravar_config
 
 # Nome e versão do Plugin, obrigatórios
