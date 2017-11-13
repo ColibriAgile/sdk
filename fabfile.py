@@ -87,6 +87,8 @@ putsc = lambda x: puts(" {:*^80}".format(x))
 def remove_accents(input_str):
     nfkd_form = unicodedata.normalize('NFKD', input_str)
     only_ascii = nfkd_form.encode('ASCII', 'ignore')
+    if PY3:
+        return only_ascii.decode('ascii')
     return only_ascii
 
 
@@ -173,7 +175,11 @@ def configurar_empresa():
             break
     MAX_SIGLA = 10
     NOME_EMPRESA = cam
-    lista = filter(lambda x: x.isalnum() or x == ' ', remove_accents(NOME_EMPRESA)).split()
+    if PY3:
+        lista = ''.join(filter(lambda x: x.isalnum() or x == ' ', remove_accents(NOME_EMPRESA))).split()
+    else:
+        lista = filter(lambda x: x.isalnum() or x == ' ', remove_accents(NOME_EMPRESA)).split()
+
     if len(lista) == 1:
         SIGLA_EMPRESA = lista[0][:MAX_SIGLA].upper()
     else:
@@ -181,8 +187,16 @@ def configurar_empresa():
 
     while True:
         cam = input(u'Entre com uma Sigla para a Empresa (Max. {} letras/numeros)\nDefault: {}\n>'.format(MAX_SIGLA, SIGLA_EMPRESA)).strip()
-        if len(cam) == 0 or (len(cam) < MAX_SIGLA and cam.isalnum()):
-            break
+        if PY3:
+            if len(cam) == 0 or (len(cam) < MAX_SIGLA and cam.isalnum()):
+                try:
+                    cam.encode('ASCII')
+                    break
+                except UnicodeEncodeError:
+                    pass
+        else:
+            if len(cam) == 0 or (len(cam) < MAX_SIGLA and cam.isalnum()):
+                break
         print('Prefixo inválido: ', cam)
     SIGLA_EMPRESA = cam or SIGLA_EMPRESA
 
