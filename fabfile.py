@@ -51,7 +51,11 @@ if not WORKON_HOME:
     puts('Por favor crie a variável de ambiente WORKON_HOME conforme documentação')
     exit(1)
 WORKON_HOME = os.path.join(WORKON_HOME, ENV_NAME)
-TCL_PATH = r'C:\Python36\tcl'
+PYTHON36 = local(
+    'py -3.6 -c "import sys; import os; print(os.path.dirname(sys.executable))"',
+    capture=True
+)
+TCL_PATH = os.path.join(PYTHON36, 'tcl')
 INNO_SETUP_DOWNLOAD = r'https://s3.amazonaws.com/ncr-colibri/install/innosetup-unicode.exe'
 INNO_REG_PATH = u'HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Inno Setup 5_is1'
 INNO_REG_KEY = u'InstallLocation'
