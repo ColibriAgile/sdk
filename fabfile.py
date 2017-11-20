@@ -221,7 +221,8 @@ def _iniciar_virtualenv():
         criar = True
     else:
         with prefix(WORKON):
-            res = local('python -c "import sys;print(sys.version)"', capture=True)
+            res = local('python -c "from __future__ import print_function;'
+                        'import sys;print(sys.version)"', capture=True)
         puts('virtual env em ' + res)
         if res.startswith('2.7'):
             puts('Versão 2.7, apagando...')
