@@ -165,11 +165,12 @@ def configurar_empresa():
     putsc('Configuração inicial do ambiente de desenvolvedor')
     global CAMINHO_EXT_DEV, SIGLA_EMPRESA, NOME_EMPRESA
     cam = input(
-        u'Entre a pasta base de projetos\nEsta é a sua pasta base para os projetos de extensões\n'
+        u'Entre o caminho completo da pasta dos seus projetos\nEste é o diretório onde deverão ficar todos seus projetos de extensões\n'
         u'(Default: {})\n>'.format(
             CAMINHO_EXT_DEV))
+    cam = os.path.abspath(cam)
     if cam and not os.path.exists(cam):
-        print('Pasta não existe')
+        print(f'Pasta não existe: {cam}')
         exit(0)
     CAMINHO_EXT_DEV = cam or CAMINHO_EXT_DEV
 
