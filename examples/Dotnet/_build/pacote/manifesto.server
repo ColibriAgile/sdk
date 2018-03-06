@@ -1,0 +1,14 @@
+{
+  "arquivos": [
+    {
+      "params_client": "/SP- /SILENT /VERYSILENT /SUPPRESSMSGBOXES /NOCANCEL /NORESTART",
+      "destino": "client",
+      "_pattern_nome": ".*\\.exe\\b"
+    }
+  ],
+  "nome": "x-Dotnet",
+  "produto": "pos",
+  "sigla_empresa": "x",
+  "empresa": "x",
+  "nome_exibicao": "Plugin Dotnet"
+}
