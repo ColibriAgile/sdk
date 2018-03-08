@@ -22,7 +22,7 @@ SourceDir=..
 [Files]
 Source: *.col; DestDir: "{app}\plugins\{#AppName}\"; Flags: skipifsourcedoesntexist ignoreversion restartreplace overwritereadonly
 Source: *.cop; DestDir: "{app}\plugins\{#AppName}\"; Flags: skipifsourcedoesntexist ignoreversion restartreplace overwritereadonly
-Source: *.dll; DestDir: "{app}\plugins\{#AppName}\"; Flags: skipifsourcedoesntexist ignoreversion restartreplace overwritereadonly
+Source: Plugin.*; DestDir: "{app}\plugins\{#AppName}\"; Flags: skipifsourcedoesntexist ignoreversion restartreplace overwritereadonly
 Source: *.pdb; DestDir: "{app}\plugins\{#AppName}\"; Flags: skipifsourcedoesntexist ignoreversion restartreplace overwritereadonly
 Source: ui.config; DestDir: "{app}\plugins\{#AppName}"; Flags: skipifsourcedoesntexist ignoreversion restartreplace overwritereadonly
 Source: reports\*; DestDir: "{app}\plugins\{#AppName}\reports"; Flags: skipifsourcedoesntexist ignoreversion recursesubdirs restartreplace overwritereadonly

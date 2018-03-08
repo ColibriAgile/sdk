@@ -1,11 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 
-
+// O assembly do plugin deve ser Plugin.[NomeDoPlugin]
+// O namespace aqui deve ser Plugin[NomeDoPlugin]
 namespace PluginDotnet
 {
-    public class MeuPlugin
+    public class Plugin
     {
+        /******************************************
+         * 
+         * Funções obrigatórias
+         * 
+         ******************************************/
         public static string ObterNome()
         {
             return "Dotnet";
@@ -20,17 +26,18 @@ namespace PluginDotnet
         {
             return "{\"fabricante\": { \"empresa\": \"Empresa\", \"desenvolvedor\": \"Equipe\", \"termos_da_licenca\": \"\", \"direitos_de_copia\": \"\", \"marcas_registradas\": \"\"}, \"suporte\": { \"email\": \"suporte@empresa.com\", \"url\": \"\", \"telefone\": \"(99)9999-9999\"}}";
         }
+
+        /******************************************
+         * 
+         * Funções opcionais
+         * 
+         ******************************************/
         public static void Configurar(string maquinas)
         {
             FormConfig testDialog = new FormConfig();
             testDialog.ShowDialog();
             testDialog.Dispose();
-
-            Colibri.MostrarMensagem("{\"mensagem\":\"teste\", \"tipo\":\"aviso\"}");
-            Colibri.GravarConfig("Teste", 1, "merda");
-            Colibri.ObterConfigs(1);
-
-
+            // Colibri.MostrarMensagem("{\"mensagem\":\"teste\", \"tipo\":\"aviso\"}");
         }
 
         public static void ConfigurarDB(string servidor, string banco, string usuario, string senha, string provedor)
@@ -51,12 +58,14 @@ namespace PluginDotnet
 
         public static string Notificar(string sEvento, string sContexto)
         {
+            // Aqui você é notificado dos eventos
             return "";
         }
 
         public static void RegistrarAssinaturas()
         {
-            Colibri.AssinarEvento("Evento.Nome");
+            // Aqui você assina os eventos
+            // Colibri.AssinarEvento("Evento.Nome");
         }
 
         public static string RegistrarPermissoes()

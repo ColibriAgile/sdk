@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
+// O assembly do plugin deve ser Plugin.[NomeDoPlugin]
+// O namespace aqui deve ser Plugin[NomeDoPlugin]
 namespace PluginDotnet
 {
     public class Colibri
