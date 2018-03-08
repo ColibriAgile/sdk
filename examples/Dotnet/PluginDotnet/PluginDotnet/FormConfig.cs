@@ -10,11 +10,11 @@ using System.Windows.Forms;
 
 namespace PluginDotnet
 {
-    public partial class FormConfig : Form
+  public partial class FormConfig : Form
+  {
+    public FormConfig()
     {
-        public FormConfig()
-        {
-            InitializeComponent();
-        }
+      InitializeComponent();
     }
+  }
 }
