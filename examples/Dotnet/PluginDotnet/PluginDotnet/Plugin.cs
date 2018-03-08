@@ -1,17 +1,48 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Web.Script.Serialization;
 
 // O assembly do plugin deve ser Plugin.[NomeDoPlugin]
 // O namespace aqui deve ser Plugin[NomeDoPlugin]
 namespace PluginDotnet
 {
+  class DadosDoFabricante
+  {
+    public class Fabricante
+    {
+      public string empresa = "";
+      public string desenvolvedor = "";
+      public string termos_da_licenca = "";
+      public string direitos_de_copia = "";
+      public string marcas_registradas = "";
+    }
+    public class Suporte
+    {
+      public string email = "";
+      public string url = "";
+      public string telefone = "";
+    }
+    public Fabricante fabricante;
+    public Suporte suporte;
+    public DadosDoFabricante()
+    {
+      fabricante = new Fabricante();
+      suporte = new Suporte();
+    }
+    public string ToJson()
+    {
+      JavaScriptSerializer serializer = new JavaScriptSerializer();
+      return serializer.Serialize(this);
+    }
+  }
+
   public class Plugin
   {
     /******************************************
-     * 
-     * Funções obrigatórias
-     * 
-     ******************************************/
+      * 
+      * Funções obrigatórias
+      * 
+      ******************************************/
     public static string ObterNome()
     {
       return "Dotnet";
@@ -24,7 +55,13 @@ namespace PluginDotnet
 
     public static string ObterDadosFabricante()
     {
-      return "{\"fabricante\": { \"empresa\": \"Empresa\", \"desenvolvedor\": \"Equipe\", \"termos_da_licenca\": \"\", \"direitos_de_copia\": \"\", \"marcas_registradas\": \"\"}, \"suporte\": { \"email\": \"suporte@empresa.com\", \"url\": \"\", \"telefone\": \"(99)9999-9999\"}}";
+      DadosDoFabricante dados = new DadosDoFabricante();
+      dados.fabricante.empresa = "Nome da Empresa";
+      dados.fabricante.desenvolvedor = "Equipe";
+      dados.fabricante.termos_da_licenca = "blablabla";
+      dados.suporte.email = "suporte@email.com";
+      dados.suporte.telefone = "98745-6547";
+      return dados.ToJson();
     }
 
     /******************************************
@@ -46,22 +83,18 @@ namespace PluginDotnet
     public static void Ativar(int umaMaquina)
     {
     }
-
     public static void Desativar(int umaMaquina)
     {
     }
-
     public static void ObterMacro(string umaMacro)
     {
     }
-
     public static string Notificar(string sEvento, string sContexto)
     {
       Colibri.MostrarMensagem("{\"mensagem\":\"teste\", \"tipo\":\"aviso\"}");
       // Aqui você é notificado dos eventos
       return "";
     }
-
     public static void RegistrarAssinaturas()
     {
       // Aqui você assina os eventos
