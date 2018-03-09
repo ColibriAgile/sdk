@@ -324,11 +324,25 @@ def preparar_extensao(nome_extensao):
 
     caminhodest = obter_caminho_extensao(nome_extensao + '/_build')
     if os.path.exists(caminhodest):
-        puts(' Já existe a pasta _build no destino')
+        puts(' Já existe a pasta _build no destino, extensão já foi preparada')
         return
 
     putsc('Informações da extensão')
-    tipo = input('É uma extensão do tipo plugin em Python? (S/N)\nDefault: N\n>')
+    while True:
+        tipo_ext = input(
+            'A extensão será instalada no servidor (S), nas estações (E) ou em ambos (A)?\n'
+            'Default: A\n>'
+        ).upper() or 'A'
+        if tipo_ext in ['A', 'E', 'S']:
+            break
+        print('Escolha inválida\n')
+
+    if tipo_ext != 'S':
+        python = input(
+            'É uma extensão do tipo plugin em Python? (S/N)\nDefault: N\n>'
+        ).upper() == 'S'
+    else:
+        python = False
     def_nome = nome_extensao.capitalize()
     while True:
         validos = string.ascii_letters + string.digits + '_'
@@ -340,17 +354,31 @@ def preparar_extensao(nome_extensao):
             break
         puts('Nome inválido')
     nome_exibicao = input('Nome de exibicao da extensão:\n>')
-    produto = input('Produto: (pos/cbo/master)\nDefault: pos\n').strip() or 'pos'
+    while True:
+        produto = input('Produto: (pos/cbo/master)\nDefault: pos\n').strip() or 'pos'
+        if produto in ['pos', 'cbo', 'master']:
+            break
+        print('Escolha inválida\n')
 
-    shutil.copytree(_abs('_templates\\_build'), caminhodest)
-    if tipo.upper() == 'S':
+    _preparar_extensao(caminhodest, tipo_ext, nome, produto, nome_exibicao, nome_extensao, python)
+
+def _preparar_extensao(caminhodest, tipo_ext, nome, produto, nome_exibicao, nome_extensao, python):
+    if tipo_ext == 'E':
+        _ig_pattern = shutil.ignore_patterns('*server.iss')
+    elif tipo_ext == 'S':
+        _ig_pattern = shutil.ignore_patterns('*client.iss')
+    else:
+        _ig_pattern = None
+    shutil.copytree(_abs('_templates\\_build'), caminhodest, ignore=_ig_pattern)
+    if tipo_ext != 'E':
+        shutil.copytree(_abs('_templates\\server'), obter_caminho_extensao(nome_extensao) + '/server')
+    if python:
         shutil.copy2(_abs('_templates\\versao.py'),
                      os.path.join(caminhodest, '..\\versao.py'))
         shutil.copy2(_abs('_templates\\__init__.py'),
                      os.path.join(caminhodest, '..\\__init__.py'))
     shutil.copy2(_abs('_templates\\versao.ini'),
                  os.path.join(caminhodest, '..\\versao.ini'))
-
     # Grava o manifesto.server
     with codecs.open(_abs('_templates\\_build\\pacote\\manifesto.server'), 'r', 'utf-8') as ma:
         manifesto = json.load(ma)
@@ -359,6 +387,10 @@ def preparar_extensao(nome_extensao):
     manifesto['nome'] = SIGLA_EMPRESA + '-' + nome
     manifesto['nome_exibicao'] = nome_exibicao
     manifesto['produto'] = produto
+    if tipo_ext == 'S':
+        manifesto['arquivos'] = list(filter(lambda a: a['destino'] == 'server', manifesto['arquivos']))
+    elif tipo_ext == 'E':
+        manifesto['arquivos'] = list(filter(lambda a: a['destino'] == 'client', manifesto['arquivos']))
     with codecs.open(os.path.join(caminhodest, 'pacote\\manifesto.server'), 'w+', 'utf-8') as ma:
         json.dump(manifesto, ma, indent=2)
 
@@ -433,13 +465,14 @@ def compilar_inno(nome_extensao, versao):
 
     try:
         with lcd(obter_caminho_extensao(nome_extensao)):
-            local(
-                '"' +os.path.join(CAMINHO_INNO, 'iscc') + '"' +
-                r' {params} {iss}'.format(
-                    iss=obter_caminho_extensao(nome_extensao + '/_build/extensao.iss'),
-                    params=parametros()
+            for arq_iss in glob.glob(obter_caminho_extensao(nome_extensao + '/_build/extensao*.iss')):
+                local(
+                    '"' +os.path.join(CAMINHO_INNO, 'iscc') + '"' +
+                    r' {params} {iss}'.format(
+                        iss=arq_iss,
+                        params=parametros()
+                    )
                 )
-            )
     except:
         puts("Falha ao executar o inno setup compiler. Verifique se esta "
              "instalado no path e eh a versao unicode.")

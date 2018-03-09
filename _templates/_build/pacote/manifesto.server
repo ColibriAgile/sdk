@@ -3,7 +3,12 @@
       {
          "params_client":"/SP- /SILENT /VERYSILENT /SUPPRESSMSGBOXES /NOCANCEL /NORESTART",
          "destino":"client",
-         "_pattern_nome":".*\\.exe\\b"
+         "_pattern_nome":".*client\\.exe\\b"
+      },
+      {
+         "params_serv": "/SP- /SILENT /VERYSILENT /SUPPRESSMSGBOXES /NOCANCEL /NORESTART",
+         "destino":"server",
+         "_pattern_nome":".*server\\.exe\\b"
       }
    ],
    "nome":"Plugin",
