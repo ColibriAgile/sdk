@@ -30,9 +30,9 @@ namespace PluginDotnet
       sucesso,
       pergunta
     }
-    public static int MostrarMensagem(string mensagem, TipoMensagem tipo, string titulo = "", string botaoPadrao = "nao", string alinhamento = "esquerda")
+    public static int MostrarMensagem(string mensagem, TipoMensagem tipo, string titulo = "", string botaoPadrao = "nao", string alinhamento = "esquerda", string id = "")
     {
-      string dados = $"{{\"mensagem\":\"{mensagem}\", \"tipo\":\"{tipo.ToString()}\", \"titulo\":\"{titulo}\", \"alinhamento\": \"{alinhamento}\" }}";
+      string dados = $"{{\"mensagem\":\"{mensagem}\", \"tipo\":\"{tipo.ToString()}\", \"titulo\":\"{titulo}\", \"alinhamento\": \"{alinhamento}\", \"id\": \"{id}\"}}";
       return MostrarMensagem(dados);
     }
     public static int MostrarMensagem(string dados) 
