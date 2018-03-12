@@ -3,6 +3,7 @@
 .idea
 
 # IDE
+*.ide
 *.sdf
 Release
 Debug
@@ -18,5 +19,12 @@ __history
 /examples/DelphiXE/dcu
 /examples/DelphiXE/prj/DelphiXE.res
 /examples/DelphiXE/prj/DelphiXE.col
-
+/examples/Dotnet/PluginDotnet/\.vs/
 config_empacotar\.py
+*.exe
+*.dll
+*.pdb
+*.lock
+*.user
+
+
