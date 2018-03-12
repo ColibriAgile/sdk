@@ -27,12 +27,16 @@ namespace PluginDotnet
       aviso,
       info,
       erro,
-      sucesso
+      sucesso,
+      pergunta
     }
-    public static int MostrarMensagem(string mensagem, TipoMensagem tipo)
+    public static int MostrarMensagem(string mensagem, TipoMensagem tipo, string titulo = "", string botaoPadrao = "nao", string alinhamento = "esquerda")
     {
-      string sTipo = tipo.ToString();        
-      string dados = $"{{\"mensagem\":\"{mensagem}\", \"tipo\":\"{sTipo}\"}}";
+      string dados = $"{{\"mensagem\":\"{mensagem}\", \"tipo\":\"{tipo.ToString()}\", \"titulo\":\"{titulo}\", \"alinhamento\": \"{alinhamento}\" }}";
+      return MostrarMensagem(dados);
+    }
+    public static int MostrarMensagem(string dados) 
+    {
       return ((Func<string, int>)dictFuncoes["MostrarMensagem"])(dados);
     }
     public static string MostrarTeclado(string dados)

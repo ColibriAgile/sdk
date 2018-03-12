@@ -71,6 +71,7 @@ namespace PluginDotnet
      ******************************************/
     public static void Configurar(string maquinas)
     {
+      Colibri.MostrarMensagem("teste", Colibri.TipoMensagem.aviso, "Titulo", "sim", "direita");
       FormConfig testDialog = new FormConfig();
       testDialog.ShowDialog();
       testDialog.Dispose();
