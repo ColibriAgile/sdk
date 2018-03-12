@@ -339,7 +339,10 @@ def preparar_extensao(nome_extensao):
 
     if tipo_ext != 'S':
         python = input(
-            'É uma extensão do tipo plugin em Python? (S/N)\nDefault: N\n>'
+            'É uma extensão do tipo plugin em Python? (S/N)\n'
+            'Isso irá criar o arquivo versao.py, necessário para a geração automática da versão\n'
+            'baseada no conteúdo de versao.ini\n'
+            'Default: N\n>'
         ).upper() == 'S'
     else:
         python = False
@@ -468,7 +471,7 @@ def compilar_inno(nome_extensao, versao):
             for arq_iss in glob.glob(obter_caminho_extensao(nome_extensao + '/_build/extensao*.iss')):
                 local(
                     '"' +os.path.join(CAMINHO_INNO, 'iscc') + '"' +
-                    r' {params} {iss}'.format(
+                    r' {params} "{iss}"'.format(
                         iss=arq_iss,
                         params=parametros()
                     )
@@ -515,7 +518,7 @@ def empacotar(nome_extensao, develop=True, build_number=None):
     versaoinfo = __ler_versaoinfo(nome_extensao, develop, build_number)
     versao = __get_version_str(versaoinfo)
     # É um plugin em python?
-    if os.path.exists(obter_caminho_extensao(nome_extensao + '\\__init__.py')):
+    if os.path.exists(obter_caminho_extensao(nome_extensao + '\\versao.py')):
         __gerar_versoes_py(nome_extensao, versaoinfo)
         empacotar_plugin_py(nome_extensao)
     compilar_inno(nome_extensao, versao)
