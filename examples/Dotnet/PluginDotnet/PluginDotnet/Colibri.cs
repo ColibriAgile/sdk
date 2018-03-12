@@ -21,8 +21,18 @@ namespace PluginDotnet
     {
       ((Action<string, int, string>)dictFuncoes["GravarConfig"])(config, maquinaId, valor);
     }
-    public static int MostrarMensagem(string dados)
+    public enum TipoMensagem
     {
+      aguarde,
+      aviso,
+      info,
+      erro,
+      sucesso
+    }
+    public static int MostrarMensagem(string mensagem, TipoMensagem tipo)
+    {
+      string sTipo = tipo.ToString();        
+      string dados = $"{{\"mensagem\":\"{mensagem}\", \"tipo\":\"{sTipo}\"}}";
       return ((Func<string, int>)dictFuncoes["MostrarMensagem"])(dados);
     }
     public static string MostrarTeclado(string dados)
