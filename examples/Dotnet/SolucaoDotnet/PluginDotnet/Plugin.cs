@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Web.Script.Serialization;
 
 // O assembly do plugin deve ser Plugin.[NomeDoPlugin]
@@ -50,7 +51,7 @@ namespace PluginDotnet
 
     public static string ObterVersao()
     {
-      return "1.0.0.0";
+      return Assembly.GetExecutingAssembly().GetName().Version.ToString();
     }
 
     public static string ObterDadosFabricante()

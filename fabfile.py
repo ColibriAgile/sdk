@@ -514,6 +514,11 @@ def empacotar(nome_extensao, develop=True, build_number=None):
     :param build_number: Número do build
     :return:
     """
+    with prefix(WORKON):
+        _empacotar(nome_extensao, develop, build_number)
+
+
+def _empacotar(nome_extensao, develop, build_number):
     empacotar_scripts(nome_extensao)
     versaoinfo = __ler_versaoinfo(nome_extensao, develop, build_number)
     versao = __get_version_str(versaoinfo)
@@ -525,6 +530,65 @@ def empacotar(nome_extensao, develop=True, build_number=None):
     gerar_cmpkg(nome_extensao, versao, versaoinfo['develop'])
 
 
+gerar_versao_ini = ['majorversion', 'minorversion', 'release', 'build']
+
+
+def __atualizar_versao_ini(versao_ini, itens):
+    config = RawConfigParser()
+    config.read(versao_ini)
+    if config.has_section('versaoinfo'):
+        for i in gerar_versao_ini[:3]:
+            if i is not None:
+                config.set('versaoinfo', i, itens[i])
+    with open(versao_ini, 'w+') as arq:
+        config.write(arq)
+
+def __split_versao(versao):
+    partes = [a if a != '*' else None for a in versao.split('.')]
+    return {chave: valor for chave, valor in zip(gerar_versao_ini, partes)}
+
+
+def __obter_versao_plugin_clr(nome_extensao, versao_ini, build):
+    try:
+        import clr
+    except:
+        return
+
+    # Obtenho a versão do binário CLR, se existir
+    try:
+        for a in glob.glob(obter_caminho_extensao(nome_extensao + r'\*.dll')):
+            cam, nome = os.path.split(a)
+            sem_ext = os.path.splitext(nome)[0]
+            namespace = ''.join(sem_ext.split('.'))
+            if os.path.exists(os.path.join(cam, namespace)):
+                putsc(f"Você não pode ter uma pasta de nome {namespace} dentro de")
+                putsc(f"sua pasta do {nome} pois impede a carga do mesmo!")
+                exit(-1)
+
+            if nome.lower().startswith('plugin.'):
+                versao = None
+                try:
+                    sys.path.append(cam)
+                    clr.AddReference(sem_ext)
+                    modulo = __import__(namespace)
+                    plugin  = modulo.Plugin
+                    versao = str(plugin.ObterVersao())
+                except Exception as e:
+                    from System.Reflection import Assembly
+                    try:
+                        versao = str(Assembly.LoadFile(a).GetName().Version.ToString())
+                        putsc(f'Versão do {nome}:{versao}')
+                    except:
+                        pass
+                if versao:
+                    itens = __split_versao(versao)
+                    if build:
+                        itens['build'] = build
+                    __atualizar_versao_ini(versao_ini, itens)
+                    return itens
+    except:
+        raise
+
 def __ler_versaoinfo(nome_extensao, develop, build):
     try:
         build = int(build)
@@ -534,14 +598,18 @@ def __ler_versaoinfo(nome_extensao, develop, build):
     if type(develop) == str:
         develop = develop.lower() in ['true', '1', 'T']
 
-    with open(obter_caminho_extensao(nome_extensao + r'\versao.ini'), 'r') as vi:
-        config = RawConfigParser()
-        config.readfp(vi)
-        if config.has_section('versaoinfo'):
-            itens = dict(config.items('versaoinfo'))
+    versao_ini = obter_caminho_extensao(nome_extensao + r'\versao.ini')
+    itens = __obter_versao_plugin_clr(nome_extensao, versao_ini, build)
+
+    if not itens:
+        with open(versao_ini, 'r') as vi:
+            config = RawConfigParser()
+            config.read_file(vi)
+            if config.has_section('versaoinfo'):
+                itens = dict(config.items('versaoinfo'))
             itens['build'] = build
-            itens['develop'] = develop
-            return itens
+    itens['develop'] = develop
+    return itens
 
 
 def __get_version_str(versaoinfo):
