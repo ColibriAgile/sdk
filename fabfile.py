@@ -543,9 +543,40 @@ def __atualizar_versao_ini(versao_ini, itens):
     with open(versao_ini, 'w+') as arq:
         config.write(arq)
 
+
 def __split_versao(versao):
     partes = [a if a != '*' else None for a in versao.split('.')]
     return {chave: valor for chave, valor in zip(gerar_versao_ini, partes)}
+
+
+def __obter_versao_plugin_col(nome_extensao, versao_ini, build):
+    try:
+        from ctypes import WinDLL, c_void_p, WINFUNCTYPE, c_wchar_p, cast
+
+        for a in glob.glob(obter_caminho_extensao(nome_extensao + r'\*.col')):
+            plugin = WinDLL(a)
+            def _alocar_buffer(buffer):
+                return buffer
+            def _obter_funcao(nome):
+                try:
+                    ret = cast(dict_funcoes[nome.lower()], c_void_p).value
+                    return ret
+                except Exception as e:
+                    return cast(0, c_void_p).value
+            dict_funcoes = {
+                'alocarbuffer': WINFUNCTYPE(c_wchar_p, c_wchar_p)(_alocar_buffer),
+                'obterfuncao': WINFUNCTYPE(c_void_p, c_wchar_p)(_obter_funcao)
+            }
+            plugin.AtribuirObtencaoDeFuncoes(cast(dict_funcoes['obterfuncao'], c_void_p))
+            plugin.ObterVersao.restype = c_wchar_p
+            versao = plugin.ObterVersao()
+            itens = __split_versao(versao)
+            if build:
+                itens['build'] = build
+            __atualizar_versao_ini(versao_ini, itens)
+            return itens
+    except:
+        return None
 
 
 def __obter_versao_plugin_clr(nome_extensao, versao_ini, build):
@@ -599,7 +630,8 @@ def __ler_versaoinfo(nome_extensao, develop, build):
         develop = develop.lower() in ['true', '1', 'T']
 
     versao_ini = obter_caminho_extensao(nome_extensao + r'\versao.ini')
-    itens = __obter_versao_plugin_clr(nome_extensao, versao_ini, build)
+    itens = __obter_versao_plugin_clr(nome_extensao, versao_ini, build) or \
+            __obter_versao_plugin_col(nome_extensao, versao_ini, build)
 
     if not itens:
         with open(versao_ini, 'r') as vi:
