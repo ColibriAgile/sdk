@@ -1,0 +1,2 @@
+Os arquivos dessa pasta serão instalados em:
+(Ncr Colibri)\plugins\[Nome da Extensão]\

@@ -1,6 +1,10 @@
-# coding: utf-8
-from __future__ import unicode_literals
-from __future__ import print_function
+"""
+SDK de Extensões do Colibri.
+Modo de uso:
+ > fab comando[:parametro1,parametro2,parametro3]
+Solicite ajuda de um comando para maiores detalhes:
+ > fab ajuda:comando
+"""
 import os
 import sys
 import shutil
@@ -14,14 +18,16 @@ import locale
 import requests
 import codecs
 import string
+import warnings
 try:
     from ConfigParser import RawConfigParser
 except ImportError:
     from configparser import RawConfigParser
 from collections import namedtuple
-from fabric.api import task, local, puts, prefix
+from fabric.api import task, local, puts, prefix, hide
 from fabric.context_managers import _setenv, settings
 from fabric import state
+from fabric.main import show_commands, display_command
 from subprocess import call
 from registry import get_value, KEY_READ
 
@@ -51,10 +57,11 @@ if not WORKON_HOME:
     puts('Por favor crie a variável de ambiente WORKON_HOME conforme documentação')
     exit(1)
 WORKON_HOME = os.path.join(WORKON_HOME, ENV_NAME)
-PYTHON36 = local(
-    'py -3.6 -c "import sys; import os; print(os.path.dirname(sys.executable))"',
-    capture=True
-)
+with hide('output','running','warnings'):
+    PYTHON36 = local(
+        'py -3.6 -c "import sys; import os; print(os.path.dirname(sys.executable))"',
+        capture=True
+    )
 TCL_PATH = os.path.join(PYTHON36, 'tcl')
 INNO_SETUP_DOWNLOAD = r'https://s3.amazonaws.com/ncr-colibri/install/innosetup-unicode.exe'
 INNO_REG_PATH = u'HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Inno Setup 5_is1'
@@ -144,7 +151,9 @@ DEP_INSTALLERS = (
 @task
 def iniciar_ambiente():
     """
-    Monta ambiente de Python do Colibri
+    Monta ambiente de Python do Colibri.
+
+    Será criado o ambiente virtual colibri para uso do SDK e dos plugins em Python.
     """
     putsc(" iniciando ambiente com dependencias ")
     _iniciar_virtualenv()
@@ -160,7 +169,9 @@ def iniciar_ambiente():
 @task
 def configurar_empresa():
     """
-    Configura os dados da empresa
+    Configura os dados da empresa.
+
+    Os dados da empresa são solicitados de forma interativa e são essenciais para a criação das extensões.
     """
     putsc('Configuração inicial do ambiente de desenvolvedor')
     global CAMINHO_EXT_DEV, SIGLA_EMPRESA, NOME_EMPRESA
@@ -315,12 +326,21 @@ def link_tkinter():
 @task
 def preparar_extensao(nome_extensao):
     """
-    Cria os arquivos basicos para deploy da extensão
-    :param nome_extensao:
-    :return:
+    Cria os arquivos basicos para deploy da extensão.
+    A coleta de informações da extensão será feita de forma interativa.
+
+    * nome_extensao: Corresponde ao nome da extensão localizada em sua pasta de projetos.
+            O nome da extensão corresponde à subpasta de sua pasta de projetos,
+            assim: c:\projetos\[nome_extensao]
     """
     if deve_gerar_config:
         configurar_empresa()
+
+    if '\\' in nome_extensao or '/' in nome_extensao:
+        putsc('Nome de extensão inválido')
+        puts('Forneça o nome de uma subpasta de:')
+        puts(obter_caminho_extensao())
+        exit(1)
 
     caminhodest = obter_caminho_extensao(nome_extensao + '/_build')
     if os.path.exists(caminhodest):
@@ -374,11 +394,17 @@ def _preparar_extensao(caminhodest, tipo_ext, nome, produto, nome_exibicao, nome
         _ig_pattern = None
     shutil.copytree(_abs('_templates\\_build'), caminhodest, ignore=_ig_pattern)
     if tipo_ext != 'E':
-        shutil.copytree(_abs('_templates\\server'), obter_caminho_extensao(nome_extensao) + '/server')
+        dest = obter_caminho_extensao(nome_extensao) + '/server'
+        if not os.path.exists(dest):
+            shutil.copytree(_abs('_templates\\server'), dest)
+    if tipo_ext != 'S':
+        dest = obter_caminho_extensao(nome_extensao) + '/client'
+        if not os.path.exists(dest):
+            shutil.copytree(_abs('_templates\\client'), dest)
     if python:
-        shutil.copy2(_abs('_templates\\versao.py'),
+        shutil.copy2(_abs('_templates\\python\\versao.py'),
                      os.path.join(caminhodest, '..\\versao.py'))
-        shutil.copy2(_abs('_templates\\__init__.py'),
+        shutil.copy2(_abs('_templates\\python\\__init__.py'),
                      os.path.join(caminhodest, '..\\__init__.py'))
     shutil.copy2(_abs('_templates\\versao.ini'),
                  os.path.join(caminhodest, '..\\versao.ini'))
@@ -398,17 +424,24 @@ def _preparar_extensao(caminhodest, tipo_ext, nome, produto, nome_exibicao, nome
         json.dump(manifesto, ma, indent=2)
 
 
+def obter_caminho_client(nome_extensao):
+    caminhodest = obter_caminho_extensao(nome_extensao)
+    client = os.path.join(caminhodest, 'client')
+    if os.path.exists(client):
+        return client
+    return caminhodest
+
 @task
 def empacotar_plugin_py(nome_extensao):
     """
     Empacotar plugin Python em um arquivo COP.
 
-    Gera o arquivo 'cop' com o plugin empacotado no diretorio de binarios
+    Gera o arquivo 'cop' com o plugin empacotado em um arquivo cop para uso do Colibri.
+    * nome_extensao: Corresponde ao nome da extensão localizada em sua pasta de projetos.
     """
     ext_pluginpy = '.cop'
     caminho = obter_caminho_extensao(nome_extensao)
-    caminhodest = obter_caminho_extensao(nome_extensao)
-    # preparar_plugin(caminhodest)
+    caminhodest = obter_caminho_client(nome_extensao)
 
     # Removo os arquivos compilados da origem (*.pyo, *.pyc)
     for root, dirnames, filenames in os.walk(caminho):
@@ -508,21 +541,33 @@ def gerar_cmpkg(nome_extensao, versao, develop=True):
 @task
 def empacotar(nome_extensao, develop=True, build_number=None):
     """
-    Gera COP, efetua o inno setup e cria o pacote cmpkg de instalacao
-    :param nome_extensao: Nome da extensão
-    :param develop: Modo develop (usado no cmpkg)
-    :param build_number: Número do build
-    :return:
+    Empacota a extensão para MarketPlace/Colibri Master.
+    Para os plugins python, gera o arquivo COP.
+    A versão do empacotamento será extraída dos plugins gerados ou do versao.ini.
+
+    * nome_extensao: Corresponde ao nome da extensão localizada em sua pasta de projetos.
+    * develop: Forneça F para pacotes que não são de desenvolvimento.
+    * build_number: Número de build a ser usado, se não fornecido será utilizado o valor disponível.
+
+    Exemplos:
+        > fab empacotar:MinhaExtensao,build_number=6
+        > fab empacotar:MinhaExtensao,develop=F,build_number=6
     """
-    with prefix(WORKON):
+    if not 'colibri' in os.getenv('VIRTUAL_ENV', ''):
+        with prefix(WORKON):
+            local(f'fab empacotar:{nome_extensao},{str(develop).lower()}'
+                  f'{("," + str(build_number)) if build_number is not None else ""}')
+    else:
         _empacotar(nome_extensao, develop, build_number)
 
 
 def _empacotar(nome_extensao, develop, build_number):
     empacotar_scripts(nome_extensao)
     versaoinfo = __ler_versaoinfo(nome_extensao, develop, build_number)
-    versao = __get_version_str(versaoinfo)
-    # É um plugin em python?
+    if versaoinfo is None:
+        exit(1)
+    versao = '{majorversion}.{minorversion}.{release}.{build}'.format(**versaoinfo)
+    # É um plugin em python? Entao eu devo gerar as versões do plugin
     if os.path.exists(obter_caminho_extensao(nome_extensao + '\\versao.py')):
         __gerar_versoes_py(nome_extensao, versaoinfo)
         empacotar_plugin_py(nome_extensao)
@@ -530,30 +575,17 @@ def _empacotar(nome_extensao, develop, build_number):
     gerar_cmpkg(nome_extensao, versao, versaoinfo['develop'])
 
 
-gerar_versao_ini = ['majorversion', 'minorversion', 'release', 'build']
-
-
-def __atualizar_versao_ini(versao_ini, itens):
-    config = RawConfigParser()
-    config.read(versao_ini)
-    if config.has_section('versaoinfo'):
-        for i in gerar_versao_ini[:3]:
-            if i is not None:
-                config.set('versaoinfo', i, itens[i])
-    with open(versao_ini, 'w+') as arq:
-        config.write(arq)
-
-
 def __split_versao(versao):
+    chaves_versao = ['majorversion', 'minorversion', 'release', 'build']
     partes = [a if a != '*' else None for a in versao.split('.')]
-    return {chave: valor for chave, valor in zip(gerar_versao_ini, partes)}
+    return {chave: valor for chave, valor in zip(chaves_versao, partes)}
 
 
-def __obter_versao_plugin_col(nome_extensao, versao_ini, build):
+def __obter_versao_plugin_col(nome_extensao):
     try:
         from ctypes import WinDLL, c_void_p, WINFUNCTYPE, c_wchar_p, cast
 
-        for a in glob.glob(obter_caminho_extensao(nome_extensao + r'\*.col')):
+        for a in glob.glob(obter_caminho_client(nome_extensao) + r'\*.col'):
             plugin = WinDLL(a)
             def _alocar_buffer(buffer):
                 return buffer
@@ -569,17 +601,16 @@ def __obter_versao_plugin_col(nome_extensao, versao_ini, build):
             }
             plugin.AtribuirObtencaoDeFuncoes(cast(dict_funcoes['obterfuncao'], c_void_p))
             plugin.ObterVersao.restype = c_wchar_p
-            versao = plugin.ObterVersao()
-            itens = __split_versao(versao)
-            if build:
-                itens['build'] = build
-            __atualizar_versao_ini(versao_ini, itens)
-            return itens
+            with warnings.catch_warnings():
+                warnings.simplefilter('ignore')
+                versao = plugin.ObterVersao()
+            print(f'===> Versão extraída de {os.path.split(a)[1]}: {versao}')
+            return __split_versao(versao)
     except:
-        return None
+        pass
 
 
-def __obter_versao_plugin_clr(nome_extensao, versao_ini, build):
+def __obter_versao_plugin_clr(nome_extensao):
     try:
         import clr
     except:
@@ -587,7 +618,7 @@ def __obter_versao_plugin_clr(nome_extensao, versao_ini, build):
 
     # Obtenho a versão do binário CLR, se existir
     try:
-        for a in glob.glob(obter_caminho_extensao(nome_extensao + r'\*.dll')):
+        for a in glob.glob(obter_caminho_client(nome_extensao) + r'\*.dll'):
             cam, nome = os.path.split(a)
             sem_ext = os.path.splitext(nome)[0]
             namespace = ''.join(sem_ext.split('.'))
@@ -604,21 +635,37 @@ def __obter_versao_plugin_clr(nome_extensao, versao_ini, build):
                     modulo = __import__(namespace)
                     plugin  = modulo.Plugin
                     versao = str(plugin.ObterVersao())
+                    print(f'===> Versão extraída de {nome}: {versao}')
                 except Exception as e:
                     from System.Reflection import Assembly
                     try:
                         versao = str(Assembly.LoadFile(a).GetName().Version.ToString())
-                        putsc(f'Versão do {nome}:{versao}')
+                        print(f'===> Versão extraída de {nome}*(assembly): {versao}')
+                        putsc(
+                            f'Não foi possível obter a versão do plugin de '
+                            f'{namespace}.Plugin.ObterVersao()')
+                        putsc(
+                            f'Versão {versao} do assembly utilizada')
                     except:
                         pass
                 if versao:
-                    itens = __split_versao(versao)
-                    if build:
-                        itens['build'] = build
-                    __atualizar_versao_ini(versao_ini, itens)
-                    return itens
+                    return __split_versao(versao)
     except:
-        raise
+        pass
+
+
+def __obter_versao_ini(nome_extensao):
+    try:
+        versao_ini = obter_caminho_extensao(nome_extensao + r'\versao.ini')
+        with open(versao_ini, 'r') as vi:
+            config = RawConfigParser()
+            config.read_file(vi)
+            if config.has_section('versaoinfo'):
+                return dict(config.items('versaoinfo'))
+    except Exception as e:
+        print(str(e))
+    print(f'===> Não foi possível obter a versão do "versao.ini"')
+
 
 def __ler_versaoinfo(nome_extensao, develop, build):
     try:
@@ -629,23 +676,17 @@ def __ler_versaoinfo(nome_extensao, develop, build):
     if type(develop) == str:
         develop = develop.lower() in ['true', '1', 'T']
 
-    versao_ini = obter_caminho_extensao(nome_extensao + r'\versao.ini')
-    itens = __obter_versao_plugin_clr(nome_extensao, versao_ini, build) or \
-            __obter_versao_plugin_col(nome_extensao, versao_ini, build)
+    itens = __obter_versao_plugin_clr(nome_extensao) or \
+            __obter_versao_plugin_col(nome_extensao) or \
+            __obter_versao_ini(nome_extensao)
 
-    if not itens:
-        with open(versao_ini, 'r') as vi:
-            config = RawConfigParser()
-            config.read_file(vi)
-            if config.has_section('versaoinfo'):
-                itens = dict(config.items('versaoinfo'))
+    if itens:
+        if build is not None:
             itens['build'] = build
-    itens['develop'] = develop
+        elif itens.get('build') in [None, '*']:
+            itens['build'] = 0
+        itens['develop'] = develop
     return itens
-
-
-def __get_version_str(versaoinfo):
-    return '{majorversion}.{minorversion}.{release}.{build}'.format(**versaoinfo)
 
 
 def __gerar_versoes_py(nome_extensao, versaoinfo):
@@ -666,17 +707,17 @@ def __gerar_versoes_py(nome_extensao, versaoinfo):
 
 
 @task
-def empacotar_scripts(nome_extensao, from_virtualenv=False):
+def empacotar_scripts(nome_extensao):
     """
-    Gera os scripts para a extensão
-    :param nome_extensao:
-    :return:
+    Gera os scripts para a extensão.
+
+    * nome_extensao: Corresponde ao nome da extensão localizada em sua pasta de projetos.
     """
-    if from_virtualenv == 'True':
-        _empacotar_scripts(nome_extensao)
-    else:
+    if not 'colibri' in os.getenv('VIRTUAL_ENV', ''):
         with prefix(WORKON):
-            local('fab empacotar_scripts:{},from_virtualenv=True'.format(nome_extensao))
+            local('fab empacotar_scripts:{}'.format(nome_extensao))
+    else:
+        _empacotar_scripts(nome_extensao)
 
 
 def _empacotar_scripts(nome_extensao):
@@ -703,8 +744,7 @@ def _empacotar_scripts(nome_extensao):
 @task
 def instalar_innosetup():
     """
-    Instala o compilador innosetup unicode nesta máquina.
-    :return:
+    Instala innosetup unicode nesta máquina.
     """
     dest_file = _abs('isccsetup.exe')
     try:
@@ -724,3 +764,15 @@ def instalar_innosetup():
     else:
         puts(' Falhou com erro: {}'.format(ret))
     return ret
+
+
+@task(default=True)
+def ajuda(comando=None):
+    '''
+    Exibe a ajuda para um comando "fab ajuda:nome".
+    * comando: Nome do comando
+    '''
+    if comando is None:
+        show_commands(__doc__, 'normal')
+    else:
+        display_command(comando)
