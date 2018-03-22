@@ -93,7 +93,7 @@ namespace PluginDotnet
     }
     public static string Notificar(string sEvento, string sContexto)
     {
-      Colibri.MostrarMensagem(sContexto, Colibri.TipoMensagem.aviso);
+      Colibri.MostrarMensagem("Teste", Colibri.TipoMensagem.aviso);
       // Aqui você é notificado dos eventos
       return "";
     }
