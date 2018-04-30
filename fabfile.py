@@ -482,18 +482,24 @@ def compilar_inno(nome_extensao, versao):
         os.unlink(f)
 
     try:
-        with codecs.open(
+
+        with open(
                 obter_caminho_extensao(
                     nome_extensao + '\\_build\\pacote\\manifesto.server'
-                ), 'r', 'utf-8') as ma:
-            nome_exibicao =  ma['nome_exibicao']
+                ), 'r') as ma:
+            json_ma = json.load(ma)
+            nome = json_ma['nome']
+            nome_exibicao = json_ma.get('nome_exibicao') or nome
     except:
+        raise
         nome_exibicao = nome_extensao
+        nome = nome_extensao
 
     def parametros():
         params = dict(
             AppName=nome_exibicao,
             AppVersion=versao,
+            ExtensionName=nome,
         )
         return ' '.join(
             '/d{}=\"{}\"'.format(k, v) for k, v in params.items()

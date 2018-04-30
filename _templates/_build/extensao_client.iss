@@ -1,6 +1,7 @@
 #ifndef AppName
   #define AppName "Nome"
   #define AppVersion "1.0.0.0"
+  #define Extension "Nome"
 #endif
 
 #define PastaIncludes ".\"
@@ -20,6 +21,7 @@ UsePreviousAppDir=no
 SourceDir=..
 
 [Files]
-Source: "client\*"; DestDir: "{app}\plugins\{#AppName}\"; Flags: skipifsourcedoesntexist ignoreversion recursesubdirs restartreplace overwritereadonly; Excludes: "leia-me.txt"
-Source: reports\*; DestDir: "{app}\plugins\{#AppName}\reports"; Flags: skipifsourcedoesntexist ignoreversion recursesubdirs restartreplace overwritereadonly
-Source: extras\*; DestDir: "{app}\plugins\{#AppName}"; Flags: skipifsourcedoesntexist ignoreversion recursesubdirs restartreplace overwritereadonly
+Source: "client\*"; DestDir: "{app}\plugins\{#ExtensionName}\"; Flags: skipifsourcedoesntexist ignoreversion recursesubdirs restartreplace overwritereadonly; Excludes: "leia-me.txt"
+Source: reports\*; DestDir: "{app}\plugins\{#ExtensionName}\reports"; Flags: skipifsourcedoesntexist ignoreversion recursesubdirs restartreplace overwritereadonly
+Source: templates\*; DestDir: "{app}\plugins\{#ExtensionName}\templates"; Flags: skipifsourcedoesntexist ignoreversion recursesubdirs restartreplace overwritereadonly
+Source: extras\*; DestDir: "{app}\plugins\{#ExtensionName}"; Flags: skipifsourcedoesntexist ignoreversion recursesubdirs restartreplace overwritereadonly

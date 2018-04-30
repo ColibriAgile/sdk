@@ -20,4 +20,4 @@ UsePreviousAppDir=no
 SourceDir=..
 
 [Files]
-Source: "server\*"; DestDir: "{app}\master\colibri\{#AppName}"; Flags: skipifsourcedoesntexist ignoreversion recursesubdirs restartreplace overwritereadonly; Excludes: "leia-me.txt"
+Source: "server\*"; DestDir: "{app}\master\colibri\{#ExtensionName}"; Flags: skipifsourcedoesntexist ignoreversion recursesubdirs restartreplace overwritereadonly; Excludes: "leia-me.txt"
