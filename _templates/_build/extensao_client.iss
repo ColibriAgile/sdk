@@ -1,7 +1,7 @@
 #ifndef AppName
   #define AppName "Nome"
   #define AppVersion "1.0.0.0"
-  #define Extension "Nome"
+  #define ExtensionName "Nome"
 #endif
 
 #define PastaIncludes ".\"
@@ -15,7 +15,7 @@ AppVersion={#AppVersion}
 AppPublisher=NCR Corporation
 DefaultDirName={code:PastaNCRColibri|c:\NCR Colibri}
 OutputDir=_build\pacote
-OutputBaseFilename={#AppName}_{#AppVersion}_client
+OutputBaseFilename={#ExtensionName}_{#AppVersion}_client
 Uninstallable=no
 UsePreviousAppDir=no
 SourceDir=..
