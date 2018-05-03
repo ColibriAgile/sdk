@@ -311,8 +311,8 @@ def _criar_link(origem, destino):
     Utilitário para criar links simbólicos entre diretórios.
     """
     if os.path.exists(destino):
-        local('rmdir /S /Q %s' % destino)
-    comando = 'mklink /J %s %s' % (destino, origem)
+        local('rmdir /S /Q "%s"' % destino)
+    comando = 'mklink /J "%s" "%s"' % (destino, origem)
     local(comando)
 
 
