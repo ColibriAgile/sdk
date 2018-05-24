@@ -25,3 +25,7 @@ Source: "client\*"; DestDir: "{app}\plugins\{#ExtensionName}\"; Flags: skipifsou
 Source: reports\*; DestDir: "{app}\plugins\{#ExtensionName}\reports"; Flags: skipifsourcedoesntexist ignoreversion recursesubdirs restartreplace overwritereadonly
 Source: templates\*; DestDir: "{app}\plugins\{#ExtensionName}\templates"; Flags: skipifsourcedoesntexist ignoreversion recursesubdirs restartreplace overwritereadonly
 Source: extras\*; DestDir: "{app}\plugins\{#ExtensionName}"; Flags: skipifsourcedoesntexist ignoreversion recursesubdirs restartreplace overwritereadonly
+
+[InstallDelete]
+Type: filesandordirs; Name: "{app}\plugins\{#ExtensionName}\templates"
+Type: filesandordirs; Name: "{app}\plugins\{#ExtensionName}\reports"
