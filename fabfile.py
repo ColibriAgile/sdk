@@ -225,7 +225,7 @@ def configurar_empresa(caminho=None, empresa=None, sigla=None):
     contents = "# coding: utf-8\n" \
                "CAMINHO_EXT_DEV = '{}'\n" \
                "NOME_EMPRESA = '{}'\nSIGLA_EMPRESA = '{}'\n".format(
-        CAMINHO_EXT_DEV, NOME_EMPRESA, SIGLA_EMPRESA
+        CAMINHO_EXT_DEV.replace('\\','\\\\'), NOME_EMPRESA, SIGLA_EMPRESA
     )
     with codecs.open(_abs(r'config_empacotar.py'), 'w', 'utf-8') as out:
         out.write(contents)
