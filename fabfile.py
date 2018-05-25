@@ -167,7 +167,7 @@ def iniciar_ambiente():
         link_tkinter()
 
 @task
-def configurar_empresa():
+def configurar_empresa(caminho=None, empresa=None, sigla=None):
     """
     Configura os dados da empresa.
 
@@ -175,7 +175,8 @@ def configurar_empresa():
     """
     putsc('Configuração inicial do ambiente de desenvolvedor')
     global CAMINHO_EXT_DEV, SIGLA_EMPRESA, NOME_EMPRESA
-    cam = input(
+
+    cam = caminho or input(
         u'Entre o caminho completo da pasta dos seus projetos\nEste é o diretório onde deverão ficar todos seus projetos de extensões\n'
         u'(Default: {})\n>'.format(
             CAMINHO_EXT_DEV))
@@ -185,36 +186,41 @@ def configurar_empresa():
         exit(0)
     CAMINHO_EXT_DEV = cam or CAMINHO_EXT_DEV
 
-    while True:
-        cam = input(u'Entre com o nome da empresa\n>').strip()
-        if len(cam):
-            break
-    MAX_SIGLA = 10
-    NOME_EMPRESA = cam
-    if PY3:
-        lista = ''.join(filter(lambda x: x.isalnum() or x == ' ', remove_accents(NOME_EMPRESA))).split()
-    else:
-        lista = filter(lambda x: x.isalnum() or x == ' ', remove_accents(NOME_EMPRESA)).split()
-
-    if len(lista) == 1:
-        SIGLA_EMPRESA = lista[0][:MAX_SIGLA].upper()
-    else:
-        SIGLA_EMPRESA = ''.join([k[0] for k in lista[:MAX_SIGLA]]).upper()
-
-    while True:
-        cam = input(u'Entre com uma Sigla para a Empresa (Max. {} letras/numeros)\nDefault: {}\n>'.format(MAX_SIGLA, SIGLA_EMPRESA)).strip()
-        if PY3:
-            if len(cam) == 0 or (len(cam) < MAX_SIGLA and cam.isalnum()):
-                try:
-                    cam.encode('ASCII')
-                    break
-                except UnicodeEncodeError:
-                    pass
-        else:
-            if len(cam) == 0 or (len(cam) < MAX_SIGLA and cam.isalnum()):
+    if not empresa:
+        while True:
+            empresa = input(u'Entre com o nome da empresa\n>').strip()
+            if len(empresa):
                 break
-        print('Prefixo inválido: ', cam)
-    SIGLA_EMPRESA = cam or SIGLA_EMPRESA
+    NOME_EMPRESA = empresa
+
+    if sigla:
+        SIGLA_EMPRESA = sigla
+    else:
+        if PY3:
+            lista = ''.join(filter(lambda x: x.isalnum() or x == ' ', remove_accents(NOME_EMPRESA))).split()
+        else:
+            lista = filter(lambda x: x.isalnum() or x == ' ', remove_accents(NOME_EMPRESA)).split()
+
+        MAX_SIGLA = 10
+        if len(lista) == 1:
+            SIGLA_EMPRESA = lista[0][:MAX_SIGLA].upper()
+        else:
+            SIGLA_EMPRESA = ''.join([k[0] for k in lista[:MAX_SIGLA]]).upper()
+
+        while True:
+            cam = input(u'Entre com uma Sigla para a Empresa (Max. {} letras/numeros)\nDefault: {}\n>'.format(MAX_SIGLA, SIGLA_EMPRESA)).strip()
+            if PY3:
+                if len(cam) == 0 or (len(cam) < MAX_SIGLA and cam.isalnum()):
+                    try:
+                        cam.encode('ASCII')
+                        break
+                    except UnicodeEncodeError:
+                        pass
+            else:
+                if len(cam) == 0 or (len(cam) < MAX_SIGLA and cam.isalnum()):
+                    break
+            print('Prefixo inválido: ', cam)
+        SIGLA_EMPRESA = cam or SIGLA_EMPRESA
 
     contents = "# coding: utf-8\n" \
                "CAMINHO_EXT_DEV = '{}'\n" \
