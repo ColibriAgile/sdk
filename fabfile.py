@@ -160,6 +160,7 @@ def iniciar_ambiente():
     local('pip install requests')
 
     with prefix(WORKON):
+        local(r'python -m pip install pip --upgrade')
         _download()
         _instalar_dependencias()
         local(r'pip install -r {}'.format(_abs('requirements_dev.txt')))

@@ -1,6 +1,4 @@
 -r requirements.txt
 PyYaml==3.12
-virtualenv==12.1.1
-virtualenvwrapper-win==1.1.5
 Fabric3==1.13.1.post1
 colibri-packaging==0.2.0.2
