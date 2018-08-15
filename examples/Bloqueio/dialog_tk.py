@@ -4,14 +4,14 @@ try:
     from tkinter.messagebox import showwarning
 except ImportError:
     raise ImportError("tkinter")
-from .colibri_gui import tk_como_modal, tk_botao_default, FW_GER_PLUGINS
+from .colibri_gui import tk_como_modal, tk_botao_default, FW_COLIBRI_CONFIG
 
 LETRA = "Verdana 12"
 
 
 def dlg_filho_da_main():
     dlg = Tk()
-    tk_como_modal(dlg, FW_GER_PLUGINS)
+    tk_como_modal(dlg, FW_COLIBRI_CONFIG)
     dlg.mainloop()
 
 

@@ -5,7 +5,7 @@ import win32ui
 from threading import Thread
 
 FW_COLIBRI = ('TApplication', "NCR Colibri POS")
-FW_GER_PLUGINS = ('TformPrincipal', 'NCR Colibri - Gerenciador de plugins')
+FW_COLIBRI_CONFIG = ('TformPrincipal', 'NCR Colibri Config')
 
 
 def mfc_do_modal(dlg):
