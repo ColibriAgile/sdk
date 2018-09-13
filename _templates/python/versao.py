@@ -4,7 +4,7 @@
     É importante que a versão do cmpkg (Pacote do Colibri) e do arquivo
   COP (plugin em python) sejam a mesma. Para tanto, em seu módulo principal do
   Plugin, faça:
-  >> from versao import VERSION
+  >> from .versao import VERSION
   >> PLUGIN_VERSION = VERSION
 
   VERSAO.INI -  Neste arquivo de seu projeto você deve definir:
@@ -23,12 +23,12 @@
 """
 
 try:
-    from __build__ import Build, Develop
+    from .__build__ import Build, Develop
 except (ImportError, ValueError):
     Build = 0
     Develop = True
 try:
-    from __version__ import MajorVersion, MinorVersion, Release
+    from .__version__ import MajorVersion, MinorVersion, Release
 except (ImportError, ValueError):
     MajorVersion = 0
     MinorVersion = 0
