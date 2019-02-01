@@ -9,8 +9,6 @@ Trata-se do SDK básico para desenvolver Extensões para o Colibri
 * Projetos de Plugins básicos em C/C++, Delphi e Python
 * Comandos para montagem de ambiente e empacotamento de plugins em Python
 * Comandos param preparação de uma extensão para deploy
-* Instalador do plugin monitor de eventos e contextos
-* Código do plugin monitor de eventos
 * Exemplo de código de instalador de plugin (Inno setup)
 
 ### Links ###
