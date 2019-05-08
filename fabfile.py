@@ -32,6 +32,7 @@ from fabric.context_managers import _setenv, settings
 from fabric import state
 from fabric.main import show_commands, display_command
 from subprocess import call
+import subprocess
 from registry import get_value, KEY_READ
 
 
@@ -129,7 +130,7 @@ def obter_caminho_extensao(pasta=''):
     caminho = os.path.normpath(os.path.join(CAMINHO_EXT_DEV, pasta))
     return caminho
 
-putsc = lambda x: puts(" {:*^80}".format(x))
+putsc = lambda x: puts("{:*^80}".format(x))
 
 
 def remove_accents(input_str):
@@ -642,7 +643,24 @@ def empacotar(nome_extensao, develop=True, build_number=None):
         _empacotar(nome_extensao, develop, build_number)
 
 
+def _validar_repo():
+    try:
+        ret = subprocess.run(['git', 'remote', 'update'], cwd=BASE_PATH, shell=True, stdout=subprocess.PIPE)
+        if ret.returncode == 0:
+            ret = subprocess.run(['git', 'status', '-uno'], cwd=BASE_PATH, shell=True, stdout=subprocess.PIPE)
+            if ret.returncode == 0 and b'Your branch is behind' in ret.stdout:
+                puts('*' * 80)
+                putsc('Atualize o SDK')
+                puts('*' * 80)
+                exit(1)
+        else:
+            puts(f' Falhou acesso ao git com erro: {ret.returncode}')
+    except Exception as e:
+        puts(f' Falhou ao validar o repositório: {e}')
+
+
 def _empacotar(nome_extensao, develop, build_number):
+    _validar_repo()
     empacotar_scripts(nome_extensao)
     try:
         versaoinfo = __ler_versaoinfo(nome_extensao, develop, build_number)
