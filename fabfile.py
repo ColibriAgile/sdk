@@ -336,9 +336,9 @@ def preparar_extensao(nome_extensao):
     Cria os arquivos basicos para deploy da extensão.
     A coleta de informações da extensão será feita de forma interativa.
 
-    * nome_extensao: Corresponde ao nome da extensão localizada em sua pasta de projetos.
-            Também pode ser fornecido um caminho completo ou relativo à pasta de projetos.
-            O nome padrão da extensão será o último segmento do caminho
+    * nome_extensao: Corresponde ao nome da extensão localizada em sua pasta de projetos
+            ou a um caminho completo ou relativo à pasta de projetos.
+            Neste caso, o nome padrão da extensão será o último segmento do caminho.
     """
     if deve_gerar_config:
         configurar_empresa()
