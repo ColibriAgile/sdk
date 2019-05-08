@@ -5,6 +5,7 @@ Modo de uso:
 Solicite ajuda de um comando para maiores detalhes:
  > fab ajuda:comando
 """
+import importlib
 import os
 import sys
 import shutil
@@ -15,6 +16,8 @@ import zipfile
 import json
 import unicodedata
 import locale
+from types import ModuleType
+
 import requests
 import codecs
 import string
@@ -76,6 +79,39 @@ try:
     CAMINHO_INNO = get_value(INNO_REG_PATH, INNO_REG_KEY, KEY_READ)
 except:
     CAMINHO_INNO = None
+
+
+class FakeColibriModule(ModuleType):
+    def __init__(self):
+        super().__init__('colibri')
+
+    @staticmethod
+    def callback(um_plugin, um_evento, um_contexto):
+        pass
+
+    @staticmethod
+    def assinar_evento(um_plugin, um_evento):
+        pass
+
+    @staticmethod
+    def obter_configs(um_plugin, uma_maquina):
+        return '{"configs":{}}'
+
+    @staticmethod
+    def gravar_config(um_plugin, uma_config, maquina_id, um_valor):
+        pass
+
+    @staticmethod
+    def mostrar_teclado(um_plugin, dados):
+        return '{"retorno":false, "resposta":''}'
+
+    @staticmethod
+    def mostrar_mensagem(um_plugin, dados):
+        pass
+
+
+class SemLicencaException(Exception):
+    pass
 
 
 # A função original em fabric.context_managers  não suporta espaços no nome
@@ -439,6 +475,36 @@ def obter_caminho_client(nome_extensao):
         return client
     return caminhodest
 
+
+def _validar_plugin_py(caminho):
+    sys.path.append(caminho)
+    sys.modules['colibri'] = FakeColibriModule()
+    try:
+        for arq in os.listdir(caminho):
+            if arq.lower().endswith('.py'):
+                try:
+                    m = arq.rsplit('.', 1)[0].replace('/', '.')
+                    dic = importlib.import_module(m)
+                    if not {"PLUGIN_NAME", "PLUGIN_VERSION"}.issubset(dic.__dict__.keys()):
+                        continue
+                except Exception:
+                    pass
+                try:
+                    if 'obter_dados_licenca' not in dic.__dict__:
+                        raise SemLicencaException(
+                            f'Função obter_dados_licenca não encontrada no plugin em\n {caminho}'
+                        )
+
+                    dados_licenca = dic.obter_dados_licenca('')
+                    _validar_dados_licenca(dados_licenca, caminho, 'obter_dados_licenca')
+                except SemLicencaException:
+                    raise
+                except Exception:
+                    pass
+    finally:
+        del sys.modules['colibri']
+
+
 @task
 def empacotar_plugin_py(nome_extensao):
     """
@@ -451,6 +517,7 @@ def empacotar_plugin_py(nome_extensao):
     caminho = obter_caminho_extensao(nome_extensao)
     caminhodest = obter_caminho_client(nome_extensao)
 
+    _validar_plugin_py(caminho)
     # Removo os arquivos compilados da origem (*.pyo, *.pyc)
     for root, dirnames, filenames in os.walk(caminho):
         for filename in fnmatch.filter(filenames, '*.py?'):
@@ -577,14 +644,21 @@ def empacotar(nome_extensao, develop=True, build_number=None):
 
 def _empacotar(nome_extensao, develop, build_number):
     empacotar_scripts(nome_extensao)
-    versaoinfo = __ler_versaoinfo(nome_extensao, develop, build_number)
-    if versaoinfo is None:
+    try:
+        versaoinfo = __ler_versaoinfo(nome_extensao, develop, build_number)
+        if versaoinfo is None:
+            exit(1)
+        versao = '{majorversion}.{minorversion}.{release}.{build}'.format(**versaoinfo)
+        # É um plugin em python? Entao eu devo gerar as versões do plugin
+        if os.path.exists(obter_caminho_extensao(nome_extensao + '\\versao.py')):
+            __gerar_versoes_py(nome_extensao, versaoinfo)
+            empacotar_plugin_py(nome_extensao)
+    except SemLicencaException as e:
+        puts(80 * '-')
+        puts(str(e))
+        puts(80 * '-')
         exit(1)
-    versao = '{majorversion}.{minorversion}.{release}.{build}'.format(**versaoinfo)
-    # É um plugin em python? Entao eu devo gerar as versões do plugin
-    if os.path.exists(obter_caminho_extensao(nome_extensao + '\\versao.py')):
-        __gerar_versoes_py(nome_extensao, versaoinfo)
-        empacotar_plugin_py(nome_extensao)
+
     compilar_inno(nome_extensao, versao)
     gerar_cmpkg(nome_extensao, versao, versaoinfo['develop'])
 
@@ -593,6 +667,19 @@ def __split_versao(versao):
     chaves_versao = ['majorversion', 'minorversion', 'release', 'build']
     partes = [a if a != '*' else None for a in versao.split('.')]
     return {chave: valor for chave, valor in zip(chaves_versao, partes)}
+
+
+def _validar_dados_licenca(dados_licenca, arquivo, funcao='ObterDadosLicenca'):
+    try:
+        dados = json.loads(dados_licenca)
+    except Exception:
+        raise SemLicencaException(
+            f'Erro ao processar o retorno de {funcao} no plugin\n{arquivo}'
+        )
+    if type(dados) is not dict or dados.get('chave_extensao') in [None, 'obter_no_marketplace']:
+        raise SemLicencaException(
+            f'Cláusula chave_extensao não definida no retorno de {funcao} no plugin\n{arquivo}'
+        )
 
 
 def __obter_versao_plugin_col(nome_extensao):
@@ -615,11 +702,22 @@ def __obter_versao_plugin_col(nome_extensao):
             }
             plugin.AtribuirObtencaoDeFuncoes(cast(dict_funcoes['obterfuncao'], c_void_p))
             plugin.ObterVersao.restype = c_wchar_p
+
+            if getattr(plugin, 'ObterDadosLicenca', None) is None:
+                raise SemLicencaException(
+                    f'Função ObterDadosLicenca não encontrada no plugin\n {a}'
+                )
+            plugin.ObterDadosLicenca.restype = c_wchar_p
+            dados_licenca = plugin.ObterDadosLicenca(cast('', c_wchar_p))
+            _validar_dados_licenca(dados_licenca, a)
+
             with warnings.catch_warnings():
                 warnings.simplefilter('ignore')
                 versao = plugin.ObterVersao()
             print(f'===> Versão extraída de {os.path.split(a)[1]}: {versao}')
             return __split_versao(versao)
+    except SemLicencaException:
+        raise
     except:
         pass
 
@@ -647,8 +745,16 @@ def __obter_versao_plugin_clr(nome_extensao):
                     sys.path.append(cam)
                     clr.AddReference(sem_ext)
                     modulo = __import__(namespace)
-                    plugin  = modulo.Plugin
+                    plugin = modulo.Plugin
                     versao = str(plugin.ObterVersao())
+
+                    if getattr(plugin, 'ObterDadosLicenca', None) is None:
+                        raise SemLicencaException(
+                            f'Função ObterDadosLicenca não encontrada no plugin\n{a}'
+                        )
+                    dados_licenca = plugin.ObterDadosLicenca('')
+                    _validar_dados_licenca(dados_licenca, a)
+
                     print(f'===> Versão extraída de {nome}: {versao}')
                 except Exception as e:
                     from System.Reflection import Assembly
@@ -664,6 +770,8 @@ def __obter_versao_plugin_clr(nome_extensao):
                         pass
                 if versao:
                     return __split_versao(versao)
+    except SemLicencaException:
+        raise
     except:
         pass
 
