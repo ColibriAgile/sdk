@@ -2,7 +2,7 @@
 
 ### O que é? ###
 
-Trata-se do SDK básico para desenvolver Extensões para o Colibri
+Trata-se do SDK básico para desenvolver Extensões para publicar no Colibri Market Place
 
 ### O que está incluído? ###
 
