@@ -11,28 +11,33 @@ namespace PluginDotnet
   {
     public class Fabricante
     {
-      public string empresa = "";
-      public string desenvolvedor = "";
-      public string termos_da_licenca = "";
-      public string direitos_de_copia = "";
-      public string marcas_registradas = "";
+      public string empresa;
+      public string desenvolvedor;
+      public string termos_da_licenca;
+      public string direitos_de_copia;
+      public string marcas_registradas;
     }
+    
     public class Suporte
     {
-      public string email = "";
-      public string url = "";
-      public string telefone = "";
+      public string email;
+      public string url;
+      public string telefone;
     }
+    
     public Fabricante fabricante;
     public Suporte suporte;
+    
     public DadosDoFabricante()
     {
       fabricante = new Fabricante();
       suporte = new Suporte();
     }
+    
     public string ToJson()
     {
       JavaScriptSerializer serializer = new JavaScriptSerializer();
+
       return serializer.Serialize(this);
     }
   }
@@ -62,7 +67,13 @@ namespace PluginDotnet
       dados.fabricante.termos_da_licenca = "blablabla";
       dados.suporte.email = "suporte@email.com";
       dados.suporte.telefone = "98745-6547";
+      
       return dados.ToJson();
+    }
+
+    public static string ObterDadosLicenca(string info)
+    {
+      return "{\"chave_extensao\": \"obter_no_marketplace\"}";
     }
 
     /******************************************
@@ -80,23 +91,28 @@ namespace PluginDotnet
 
     public static void ConfigurarDB(string servidor, string banco, string usuario, string senha, string provedor)
     {
-
     }
+
     public static void Ativar(int umaMaquina)
     {
     }
+
     public static void Desativar(int umaMaquina)
     {
     }
+    
     public static void ObterMacro(string umaMacro)
     {
     }
+    
     public static string Notificar(string sEvento, string sContexto)
     {
-      Colibri.MostrarMensagem("Teste", Colibri.TipoMensagem.aviso);
       // Aqui você é notificado dos eventos
+      Colibri.MostrarMensagem("Teste", Colibri.TipoMensagem.aviso);
+      
       return "";
     }
+    
     public static void RegistrarAssinaturas()
     {
       // Aqui você assina os eventos

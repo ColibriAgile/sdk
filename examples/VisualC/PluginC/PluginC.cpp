@@ -41,6 +41,12 @@ wchar_t* __stdcall ObterDadosFabricante()
 	return AlocarBuffer(dados);
 }
 
+wchar_t* __stdcall ObterDadosLicenca(wchar_t* info)
+{
+	return AlocarBuffer(L"{\"chave_extensao\": \"obter_no_marketplace\"}");
+}
+
+
 wchar_t* __stdcall ObterVersao()
 {
 	return AlocarBuffer(L"1.0.0.0");

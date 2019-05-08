@@ -8,6 +8,7 @@ EXPORTS
     Notificar
     ObterNome
 	ObterDadosFabricante
+	ObterDadosLicenca
     ObterVersao
     RegistrarAssinaturas
 	ObterMacro

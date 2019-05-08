@@ -20,6 +20,7 @@ exports
   Desativar,
   Notificar,
   ObterDadosFabricante,
+  ObterDadosLicenca,
   ObterMacro,
   ObterNome,
   ObterVersao,

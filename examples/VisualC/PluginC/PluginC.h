@@ -23,6 +23,7 @@ wchar_t* __stdcall ObterErro();
 wchar_t* __stdcall ObterMacro (wchar_t* umaMacro);
 wchar_t* __stdcall ObterNome();
 wchar_t* __stdcall ObterDadosFabricante();
+wchar_t* __stdcall ObterDadosLicenca(wchar_t* info);
 wchar_t* __stdcall ObterVersao();
 void __stdcall RegistrarAssinaturas(ProcAssinarEvento AssinarEvento);
 wchar_t* __stdcall VerificarVersao(wchar_t* informacao);

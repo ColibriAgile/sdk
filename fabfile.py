@@ -32,6 +32,7 @@ from subprocess import call
 from registry import get_value, KEY_READ
 
 
+VERSAO_SDK = '1.0'
 PY3 = sys.version_info > (3,)
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 _abs = lambda *x: os.path.join(BASE_PATH, *x)
@@ -279,7 +280,6 @@ def _download():
         _download_file(dep.link, dest_file)
 
 
-
 def _instalar_dependencias():
     putsc(" instalando dependencias ")
     import zipfile
@@ -337,17 +337,16 @@ def preparar_extensao(nome_extensao):
     A coleta de informações da extensão será feita de forma interativa.
 
     * nome_extensao: Corresponde ao nome da extensão localizada em sua pasta de projetos.
-            O nome da extensão corresponde à subpasta de sua pasta de projetos,
-            assim: c:\projetos\[nome_extensao]
+            Também pode ser fornecido um caminho completo ou relativo à pasta de projetos.
+            O nome padrão da extensão será o último segmento do caminho
     """
     if deve_gerar_config:
         configurar_empresa()
 
     if '\\' in nome_extensao or '/' in nome_extensao:
-        putsc('Nome de extensão inválido')
-        puts('Forneça o nome de uma subpasta de:')
-        puts(obter_caminho_extensao())
-        exit(1)
+        so_o_nome = os.path.split(nome_extensao)[1]
+    else:
+        so_o_nome = nome_extensao
 
     caminhodest = obter_caminho_extensao(nome_extensao + '/_build')
     if os.path.exists(caminhodest):
@@ -373,7 +372,7 @@ def preparar_extensao(nome_extensao):
         ).upper() == 'S'
     else:
         python = False
-    def_nome = nome_extensao.capitalize()
+    def_nome = so_o_nome.capitalize()
     while True:
         validos = string.ascii_letters + string.digits + '_'
         nome = input(
@@ -391,6 +390,7 @@ def preparar_extensao(nome_extensao):
         print('Escolha inválida\n')
 
     _preparar_extensao(caminhodest, tipo_ext, nome, produto, nome_exibicao, nome_extensao, python)
+
 
 def _preparar_extensao(caminhodest, tipo_ext, nome, produto, nome_exibicao, nome_extensao, python):
     if tipo_ext == 'E':
@@ -423,6 +423,7 @@ def _preparar_extensao(caminhodest, tipo_ext, nome, produto, nome_exibicao, nome
     manifesto['nome'] = SIGLA_EMPRESA + '-' + nome
     manifesto['nome_exibicao'] = nome_exibicao
     manifesto['produto'] = produto
+    manifesto['versao_sdk'] = VERSAO_SDK
     if tipo_ext == 'S':
         manifesto['arquivos'] = list(filter(lambda a: a['destino'] == 'server', manifesto['arquivos']))
     elif tipo_ext == 'E':

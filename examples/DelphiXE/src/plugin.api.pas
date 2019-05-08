@@ -16,6 +16,7 @@ type
 
   // Fun��es Exportadas da DLL
   function ObterDadosFabricante(): PChar; stdcall;
+  function ObterDadosLicenca(informacao: PChar): PChar; stdcall;
   procedure Ativar(umaMaquina:Integer); stdcall; export;
   procedure AtribuirObtencaoDeFuncoes(_ObterFuncao: ProcObterFuncao); stdcall; export;
   procedure Configurar(dictMaquinas:PChar); stdcall; export;
@@ -76,11 +77,16 @@ begin
   Result := AlocarBuffer(PChar('plugin.delphi'));
 end;
 
-
 function ObterDadosFabricante(): PChar; stdcall; export;
 begin
     Result := AlocarBuffer(PChar(FABRICANTE));
 end;
+
+function ObterDadosLicenca(informacao: PChar): PChar; stdcall; export;
+begin
+  Result := AlocarBuffer('{"chave_extensao": "obter_no_marketplace"}');
+end;
+
 procedure RegistrarAssinaturas(AssinarEvento: ProcAssinarEvento); stdcall; export;
 begin
   // Este evento � gerado por �tens de interface (menu, bot�es) adicionados via ui.config

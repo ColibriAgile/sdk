@@ -34,6 +34,10 @@ def obter_dados_fabricante():
     return retornar(**DADOS_FABRICANTE)
 
 
+def obter_dados_licenca(info):
+    return retornar(chave_extensao="obter_no_marketplace")
+
+
 # Funções opcionais: Implemente as que desejar
 def ativar(maquina):
     logger.debug('plugin ativado na maquina: %d', maquina)
