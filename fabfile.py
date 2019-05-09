@@ -460,7 +460,6 @@ def _preparar_extensao(caminhodest, tipo_ext, nome, produto, nome_exibicao, nome
     manifesto['nome'] = SIGLA_EMPRESA + '-' + nome
     manifesto['nome_exibicao'] = nome_exibicao
     manifesto['produto'] = produto
-    manifesto['nivel_sdk'] = NIVEL_SDK
     if tipo_ext == 'S':
         manifesto['arquivos'] = list(filter(lambda a: a['destino'] == 'server', manifesto['arquivos']))
     elif tipo_ext == 'E':
@@ -612,11 +611,8 @@ def gerar_cmpkg(nome_extensao, versao, develop=True):
         shutil.copy2('manifesto.server', pasta)
     with prefix(WORKON):
         local(
-            'python -m colibri_packaging "{pasta}" --pasta_saida "{pasta_saida}" '
-            '--versao {versao} --develop {develop}'.format(
-                pasta=pasta, pasta_saida=pasta_saida, 
-                versao=versao, nome=nome_extensao, develop=develop
-            )
+            f'python -m colibri_packaging "{pasta}" --pasta_saida "{pasta_saida}" '
+            f'--versao {versao} --develop {develop} --nivel_sdk {NIVEL_SDK}'
         )
 
 
