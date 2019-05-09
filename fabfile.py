@@ -36,7 +36,7 @@ import subprocess
 from registry import get_value, KEY_READ
 
 
-VERSAO_SDK = '1.0'
+NIVEL_SDK = '1'
 PY3 = sys.version_info > (3,)
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 _abs = lambda *x: os.path.join(BASE_PATH, *x)
@@ -460,7 +460,7 @@ def _preparar_extensao(caminhodest, tipo_ext, nome, produto, nome_exibicao, nome
     manifesto['nome'] = SIGLA_EMPRESA + '-' + nome
     manifesto['nome_exibicao'] = nome_exibicao
     manifesto['produto'] = produto
-    manifesto['versao_sdk'] = VERSAO_SDK
+    manifesto['nivel_sdk'] = NIVEL_SDK
     if tipo_ext == 'S':
         manifesto['arquivos'] = list(filter(lambda a: a['destino'] == 'server', manifesto['arquivos']))
     elif tipo_ext == 'E':

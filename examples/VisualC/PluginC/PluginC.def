@@ -7,8 +7,8 @@ EXPORTS
     Desativar
     Notificar
     ObterNome
-	ObterDadosFabricante
-	ObterDadosLicenca
+    ObterDadosFabricante
+    ObterDadosLicenca
     ObterVersao
     RegistrarAssinaturas
 	ObterMacro
