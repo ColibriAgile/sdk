@@ -646,11 +646,11 @@ def _validar_repo():
             ret = subprocess.run(['git', 'status', '-uno'], cwd=BASE_PATH, shell=True, stdout=subprocess.PIPE)
             if ret.returncode == 0 and b'Your branch is behind' in ret.stdout:
                 puts('*' * 80)
-                putsc('Atualize o SDK')
+                putsc('O SDK está desatualizado e pode ser incompatível com o nível no Market Place')
                 puts('*' * 80)
                 exit(1)
         else:
-            puts(f' Falhou acesso ao git com erro: {ret.returncode}')
+            puts(f' Aviso: não foi possível acessar o git para procurar por atualizações.')
     except Exception as e:
         puts(f' Falhou ao validar o repositório: {e}')
 
