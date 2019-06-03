@@ -123,5 +123,9 @@ namespace PluginDotnet
     {
       return "";
     }
+    public static void AtribuirFuncoes(Dictionary<String, Object> dictFuncoes)
+    {
+      Colibri.dictFuncoes = dictFuncoes;
+    }
   }
 }
