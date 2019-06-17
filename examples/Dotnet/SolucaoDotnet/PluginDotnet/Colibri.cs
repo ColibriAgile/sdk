@@ -51,5 +51,9 @@ namespace PluginDotnet
     {
       return ((Func<string, int, int>)dictFuncoes["VerificarPermissao"])(GUID, elevar);
     }
+    public static void AtribuirFuncoes(Dictionary<String, Object> dictFuncoes)
+    {
+      Colibri.dictFuncoes = dictFuncoes;
+    }
   }
 }
