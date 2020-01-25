@@ -1,0 +1,14 @@
+{
+  "arquivos": [
+    {
+      "params_client": "/SP- /SILENT /VERYSILENT /SUPPRESSMSGBOXES /NOCANCEL /NORESTART",
+      "destino": "client",
+      "_pattern_nome": ".*client\\.exe\\b"
+    }
+  ],
+  "nome": "ACME-Bloqueio",
+  "produto": "pos",
+  "sigla_empresa": "ACME",
+  "empresa": "ACME Testes",
+  "nome_exibicao": "Bloqueio de Mesas"
+}
