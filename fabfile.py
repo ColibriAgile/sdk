@@ -68,7 +68,7 @@ with hide('output','running','warnings'):
         capture=True
     )
 TCL_PATH = os.path.join(PYTHON, 'tcl')
-INNO_SETUP_DOWNLOAD = r'https://s3.amazonaws.com/ncr-colibri/install/innosetup-unicode.exe'
+INNO_SETUP_DOWNLOAD = r'https://s3.amazonaws.com/ncr-colibri/install/innosetup6-unicode.exe'
 INNO_REG_PATH5 = u'HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Inno Setup 5_is1'
 INNO_REG_PATH6 = u'HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Inno Setup 6_is1'
 INNO_REG_KEY = u'InstallLocation'

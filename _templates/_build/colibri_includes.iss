@@ -2,8 +2,8 @@
 function PastaNCRColibri(s:string): string;
 begin
   if s = '' then
-    s := '{sd}\NCR Colibri\';
-  Result := ExpandConstant('{reg:HKLM32\Software\NCR\Colibri,NCRColibri|' + s +'}');
+    s := '{sd}\NCR Solution\';
+  Result := ExpandConstant('{reg:HKLM32\Software\NCR\Brasil,NCRSolution|' + s +'}');
 end;
 
 function InitializeUninstall(): Boolean;
