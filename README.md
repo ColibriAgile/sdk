@@ -2,14 +2,18 @@
 
 ### O que é? ###
 
-Trata-se do SDK básico para desenvolver Extensões para publicar no Colibri Market Place
+Trata-se do SDK básico para 
+* Desenvolver extensões para o Colibri Desktop 
+* Publicar as extensões no Colibri Market Place
+
+Para baixar a última versão do SDK clique no link abaixo.
 
 ### O que está incluído? ###
 
 * Projetos de Plugins básicos em C/C++, Delphi e Python.
 * Comandos para montagem de ambiente e empacotamento de plugins em Python.
-* Comandos param preparação de uma extensão para deploy.
-* Exemplo de código de instalador de plugin (Inno setup).
+* Comandos para preparação de uma extensão para deploy.
+* Exemplo de instalador de plugin em Inno Setup.
 
 ### Links ###
 
