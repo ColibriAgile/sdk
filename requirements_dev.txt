@@ -1,5 +1,4 @@
 -r requirements.txt
 colibri-packaging==1.0.2.1
 Fabric3==1.14.post1
-psycopg2==2.8.4
-
+psycopg2==2.8.5

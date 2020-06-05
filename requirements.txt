@@ -1,11 +1,11 @@
-Jinja2==2.10.3
+Jinja2==2.11.2
 MarkupSafe==1.1.1
 adodbapi==2.6.2.0
 altgraph==0.17
 simplejson==3.17.0
 pyserial==3.4
-pyodbc==4.0.28
+pyodbc==4.0.30
 pythonnet==2.4.0
-requests==2.22.0
+requests==2.23.0
 ecdsa==0.15
-pycryptodome==3.9.4
+pycryptodome==3.9.7
