@@ -6,10 +6,10 @@ Trata-se do SDK básico para desenvolver Extensões para publicar no Colibri Mar
 
 ### O que está incluído? ###
 
-* Projetos de Plugins básicos em C/C++, Delphi e Python
-* Comandos para montagem de ambiente e empacotamento de plugins em Python
-* Comandos param preparação de uma extensão para deploy
-* Exemplo de código de instalador de plugin (Inno setup)
+* Projetos de Plugins básicos em C/C++, Delphi e Python.
+* Comandos para montagem de ambiente e empacotamento de plugins em Python.
+* Comandos param preparação de uma extensão para deploy.
+* Exemplo de código de instalador de plugin (Inno setup).
 
 ### Links ###
 
