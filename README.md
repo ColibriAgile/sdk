@@ -14,6 +14,7 @@ Trata-se do SDK básico para desenvolver Extensões para publicar no Colibri Mar
 ### Links ###
 
 [Portal do SDK de Plugins](http://wiki.ncrcolibri.com.br/display/plugin)
+[Download da ultima versão do SDK](https://github.com/ColibriAgile/sdk/archive/master.zip)
 
 ### Contato ###
 
