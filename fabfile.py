@@ -15,7 +15,6 @@ import compileall
 import zipfile
 import json
 import unicodedata
-import locale
 from types import ModuleType
 
 import requests
@@ -62,24 +61,29 @@ if not WORKON_HOME:
     puts('Por favor crie a variável de ambiente WORKON_HOME conforme documentação')
     exit(1)
 WORKON_HOME = os.path.join(WORKON_HOME, ENV_NAME)
+PY_LAUNCHER = 'py -3.7'
 with hide('output','running','warnings'):
-    PYTHON36 = local(
-        'py -3.6 -c "import sys; import os; print(os.path.dirname(sys.executable))"',
+    PYTHON = local(
+        f'{PY_LAUNCHER} -c "import sys; import os; print(os.path.dirname(sys.executable))"',
         capture=True
     )
-TCL_PATH = os.path.join(PYTHON36, 'tcl')
-INNO_SETUP_DOWNLOAD = r'https://s3.amazonaws.com/ncr-colibri/install/innosetup-unicode.exe'
-INNO_REG_PATH = u'HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Inno Setup 5_is1'
+TCL_PATH = os.path.join(PYTHON, 'tcl')
+INNO_SETUP_DOWNLOAD = r'https://s3.amazonaws.com/ncr-colibri/install/innosetup6-unicode.exe'
+INNO_REG_PATH5 = u'HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Inno Setup 5_is1'
+INNO_REG_PATH6 = u'HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Inno Setup 6_is1'
 INNO_REG_KEY = u'InstallLocation'
-COLIBRI_REG_PATH = u'HKEY_LOCAL_MACHINE\\Software\\NCR\\Colibri'
-COLIBRI_REG_KEY = u'NCRColibri'
+COLIBRI_REG_PATH = u'HKEY_LOCAL_MACHINE\\Software\\NCR\\Brasil'
+COLIBRI_REG_KEY = u'NCRSolution'
 DEP_CACHE_DIR = '_cache'
 DEP_DEST_DIR = r'{}\Lib\site-packages'.format(WORKON_HOME)
 CHUNK_SIZE = 1024
 try:
-    CAMINHO_INNO = get_value(INNO_REG_PATH, INNO_REG_KEY, KEY_READ)
+    CAMINHO_INNO = get_value(INNO_REG_PATH6, INNO_REG_KEY, KEY_READ)
 except:
-    CAMINHO_INNO = None
+    try:
+        CAMINHO_INNO = get_value(INNO_REG_PATH5, INNO_REG_KEY, KEY_READ)
+    except:
+        CAMINHO_INNO = None
 
 
 class FakeColibriModule(ModuleType):
@@ -141,15 +145,6 @@ def remove_accents(input_str):
     return only_ascii
 
 
-def input(strmsg):
-    if PY3:
-        import builtins
-        return builtins.input(strmsg)
-    return raw_input(remove_accents(strmsg)).decode(
-        sys.stdin.encoding or locale.getpreferredencoding(True)
-    )
-
-
 def should_install_pywin32():
     """
     Predicate function that must return True if the package win32 is required.
@@ -177,9 +172,8 @@ def post_install_pywin32():
 
 DEP_INSTALLERS = (
     Dependency(
-        name='pywin32-221.win32-py3.6.exe',
-        link='http://iweb.dl.sourceforge.net/project/pywin32/pywin32/'
-             'Build%20221/pywin32-221.win32-py3.6.exe',
+        name='pywin32-227.win32-py3.7.exe',
+        link='https://github.com/mhammond/pywin32/releases/download/b227/pywin32-227.win32-py3.7.exe',
         predicate=should_install_pywin32,
         post=post_install_pywin32
     ),
@@ -287,7 +281,7 @@ def _iniciar_virtualenv():
             puts('criando...')
             criar = True
     if criar:
-        local('py -3 -m venv {} --copies'.format(WORKON_HOME))
+        local(f'{PY_LAUNCHER} -m venv {WORKON_HOME} --copies')
 
 
 def _download_file(url, dest_file):
@@ -477,18 +471,19 @@ def obter_caminho_client(nome_extensao):
 
 
 def _validar_plugin_py(caminho):
-    sys.path.append(caminho)
+    modulo = os.path.basename(caminho)
+    sys.path.append(os.path.normpath(os.path.join(caminho, "..")))
     sys.modules['colibri'] = FakeColibriModule()
     try:
         for arq in os.listdir(caminho):
             if arq.lower().endswith('.py'):
                 try:
                     m = arq.rsplit('.', 1)[0].replace('/', '.')
-                    dic = importlib.import_module(m)
+                    dic = importlib.import_module(modulo + '.' + m)
                     if not {"PLUGIN_NAME", "PLUGIN_VERSION"}.issubset(dic.__dict__.keys()):
                         continue
-                except Exception:
-                    pass
+                except Exception as e:
+                    continue
                 try:
                     if 'obter_dados_licenca' not in dic.__dict__:
                         raise SemLicencaException(
@@ -497,6 +492,7 @@ def _validar_plugin_py(caminho):
 
                     dados_licenca = dic.obter_dados_licenca('')
                     _validar_dados_licenca(dados_licenca, caminho, 'obter_dados_licenca')
+                    break
                 except SemLicencaException:
                     raise
                 except Exception:

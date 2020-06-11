@@ -54,7 +54,7 @@ def obter_dados_fabricante():
 
 
 def obter_dados_licenca(info):
-    return retornar(chave_extensao="obter_no_marketplace")
+    return retornar(chave_extensao="a925b136-f7b9-4470-8a55-6680a670f533")
 
 
 bloqueadas = []

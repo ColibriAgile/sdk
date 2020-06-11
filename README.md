@@ -21,6 +21,8 @@ Para baixar a última versão do SDK clique no link abaixo.
 
 [Download da ultima versão do SDK](https://github.com/ColibriAgile/sdk/archive/master.zip)
 
+[Download da ultima versão do SDK](https://github.com/ColibriAgile/sdk/archive/master.zip)
+
 ### Contato ###
 
 Qualquer dúvida entre em contato com: colibri.agile@ncr.com
