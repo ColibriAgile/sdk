@@ -1,2 +1,3 @@
+Gere ou copie os arquivos resultantes da compilação na pasta SERVER.
 Os arquivos dessa pasta serão instalados em:
-(Ncr Colibri)\master\colibri\[Nome da Extensão]\
+(Ncr Solution)\plugins\[Nome da Extensão]\

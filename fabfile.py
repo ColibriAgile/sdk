@@ -20,7 +20,6 @@ from types import ModuleType
 import requests
 import codecs
 import string
-import warnings
 try:
     from ConfigParser import RawConfigParser
 except ImportError:
@@ -62,7 +61,7 @@ if not WORKON_HOME:
     exit(1)
 WORKON_HOME = os.path.join(WORKON_HOME, ENV_NAME)
 PY_LAUNCHER = 'py -3.7'
-with hide('output','running','warnings'):
+with hide('output', 'running', 'warnings'):
     PYTHON = local(
         f'{PY_LAUNCHER} -c "import sys; import os; print(os.path.dirname(sys.executable))"',
         capture=True
@@ -198,6 +197,7 @@ def iniciar_ambiente():
         local(r'pip install -r {}'.format(_abs('requirements_dev.txt')))
 
         link_tkinter()
+
 
 @task
 def configurar_empresa(caminho=None, empresa=None, sigla=None):
@@ -440,11 +440,10 @@ def _preparar_extensao(caminhodest, tipo_ext, nome, produto, nome_exibicao, nome
         dest = obter_caminho_extensao(nome_extensao) + '/client'
         if not os.path.exists(dest):
             shutil.copytree(_abs('_templates\\client'), dest)
+    _makedirs(os.path.join(caminhodest, '..\\src\\x'))
     if python:
-        versao_py = os.path.join(caminhodest, '..\\src\\versao.py')
-        _makedirs(versao_py)
         shutil.copy2(_abs('_templates\\python\\versao.py'),
-                     versao_py)
+                     os.path.join(caminhodest, '..\\src\\versao.py'))
         shutil.copy2(_abs('_templates\\python\\__init__.py'),
                      os.path.join(caminhodest, '..\\src\\__init__.py'))
     shutil.copy2(_abs('_templates\\versao.ini'),
@@ -509,7 +508,7 @@ def _validar_plugin_py(caminho):
 
 
 @task
-def ajustar_versao_py(nome_extensao, pasta_src='src', develop=True, build_number=None):
+def py_alterar_versao(nome_extensao, pasta_src='src', develop=True, build_number=None):
     """
     Ajusta um arquivo versao.py com base no versao.txt
 
@@ -518,66 +517,56 @@ def ajustar_versao_py(nome_extensao, pasta_src='src', develop=True, build_number
     :param develop: Versão develop, default True
     :param build_number: Número do build
     """
-    try:
-        versaoinfo = __ler_versaoinfo(nome_extensao, develop=develop, build_number=build_number)
-        if versaoinfo is None:
-            exit(1)
-        puts('Versão obtida{majorversion}.{minorversion}.{release}.{build}'.format(**versaoinfo))
-        caminho = obter_subpasta_extensao(nome_extensao, pasta_src)
-        # É um plugin em python? Entao eu devo gerar as versões do plugin
-        if os.path.exists(obter_caminho_extensao(os.path.join(caminho , 'versao.py'))):
-            __gerar_versoes_py(caminho, versaoinfo)
-    except SemLicencaException as e:
-        puts(80 * '-')
-        puts(str(e))
-        puts(80 * '-')
+    versaoinfo = __ler_versaoinfo(nome_extensao, develop=develop, build_number=build_number)
+    if versaoinfo is None:
         exit(1)
+    puts('Versão obtida: {majorversion}.{minorversion}.{release}.{build}'.format(**versaoinfo))
+    caminho = obter_subpasta_extensao(nome_extensao, pasta_src)
+    __gerar_versoes_py(caminho, versaoinfo)
 
 
 @task
-def empacotar_plugin_py(nome_extensao, pasta_plugin='src', caminho_destino='client', develop=True, build_number=None):
+def py_gerar_cop(nome_extensao, pasta_plugin='src', pasta_destino='client', develop=True, build_number=None):
     """
-    Empacotar plugin Python em um arquivo COP.
-
-    Gera o arquivo 'cop' com o plugin empacotado em um arquivo cop para uso do Colibri.
+    Compila o plugin Python em um arquivo COP para uso do Colibri.
     :param nome_extensao: Corresponde ao nome da extensão localizada em sua pasta de projetos.
     :param pasta_plugin: Subpasta com os fontes do plugin, default 'src'
-    :param caminho_destino: Subpasta de destino para o empacotamento. Default 'client'
+    :param pasta_destino: Subpasta de destino para o empacotamento. Default 'client'
     :param develop: Indica um plugin ainda em desenvolvimento. Default True
     :param build_number: Usado no ajuste da versão do plugin (combinado com o versao.ini)
     """
 
     ext_pluginpy = '.cop'
-    caminho_fontes = obter_subpasta_extensao(nome_extensao, pasta_plugin)
-    caminho_destino = obter_subpasta_extensao(nome_extensao, caminho_destino)
+    pasta_fontes = obter_subpasta_extensao(nome_extensao, pasta_plugin)
+    pasta_destino = obter_subpasta_extensao(nome_extensao, pasta_destino)
 
-    _validar_plugin_py(caminho_fontes)
-    ajustar_versao_py(nome_extensao, pasta_plugin, develop=develop, build_number=build_number)
+    _validar_plugin_py(pasta_fontes)
+    py_alterar_versao(nome_extensao, pasta_plugin, develop=develop, build_number=build_number)
     # Removo os arquivos compilados da origem (*.pyo, *.pyc)
-    for root, dirnames, filenames in os.walk(caminho_fontes):
+    for root, dirnames, filenames in os.walk(pasta_fontes):
         for filename in fnmatch.filter(filenames, '*.py?'):
             arq = os.path.join(root, filename)
             os.unlink(arq)
 
     # Compilo os pythons, isso dá eficiência pois o pacote já terá bytecodes
-    compileall.compile_dir(caminho_fontes, ddir='.' + nome_extensao, force=True)
+    compileall.compile_dir(pasta_fontes, ddir='.' + nome_extensao, force=True)
     # Apago os arquivos .cop do diretório de destino do plugin
-    for arq in glob.glob(os.path.join(caminho_destino, '*.cop')):
+    for arq in glob.glob(os.path.join(pasta_destino, '*.cop')):
         os.unlink(arq)
     # Agora gero o zip com o diretório dentro referente a este pacote
     zipdest = os.path.join(
-        caminho_destino, 'plugin.' + nome_extensao.lower() + ext_pluginpy)
+        pasta_destino, 'plugin.' + nome_extensao.lower() + ext_pluginpy)
     print('Gerando: ' + zipdest)
     with zipfile.ZipFile(zipdest, "w") as arqzip:
-        for root, dirnames, filenames in os.walk(caminho_fontes):
+        for root, dirnames, filenames in os.walk(pasta_fontes):
             for filename in fnmatch.filter(filenames, '*.py*'):
                 arq = os.path.join(root, filename)
-                dest = nome_extensao + '\\' + arq[len(caminho_fontes):]
+                dest = nome_extensao + '\\' + arq[len(pasta_fontes):]
                 arqzip.write(arq, dest)
 
 
 @task
-def compilar_inno(nome_extensao, versao):
+def gerar_instalador(nome_extensao, versao):
     """
     Compila o inno setup para a extensão.
     :param nome_extensao:
@@ -631,7 +620,6 @@ def compilar_inno(nome_extensao, versao):
         raise
 
 
-@task
 def gerar_cmpkg(nome_extensao, versao, develop=True):
     """
     Gera um pacote cmpkg para a extensão.
@@ -695,18 +683,12 @@ def _validar_repo():
 def _empacotar(nome_extensao, develop, build_number):
     _validar_repo()
     empacotar_scripts(nome_extensao)
-    try:
-        versaoinfo = __ler_versaoinfo(nome_extensao, develop, build_number)
-        if versaoinfo is None:
-            exit(1)
-        versao = '{majorversion}.{minorversion}.{release}.{build}'.format(**versaoinfo)
-    except SemLicencaException as e:
-        puts(80 * '-')
-        puts(str(e))
-        puts(80 * '-')
+    versaoinfo = __ler_versaoinfo(nome_extensao, develop, build_number)
+    if versaoinfo is None:
+        putsc('Falha ao obter versao!')
         exit(1)
-
-    compilar_inno(nome_extensao, versao)
+    versao = '{majorversion}.{minorversion}.{release}.{build}'.format(**versaoinfo)
+    gerar_instalador(nome_extensao, versao)
     gerar_cmpkg(nome_extensao, versao, versaoinfo['develop'])
 
 
@@ -727,100 +709,6 @@ def _validar_dados_licenca(dados_licenca, arquivo, funcao='ObterDadosLicenca'):
         raise SemLicencaException(
             f'Cláusula chave_extensao não definida no retorno de {funcao} no plugin\n{arquivo}'
         )
-
-
-def __obter_versao_plugin_col(nome_extensao):
-    try:
-        from ctypes import WinDLL, c_void_p, WINFUNCTYPE, c_wchar_p, cast
-
-        for a in glob.glob(obter_caminho_client(nome_extensao) + r'\*.col'):
-            plugin = WinDLL(a)
-            def _alocar_buffer(buffer):
-                return buffer
-            def _obter_funcao(nome):
-                try:
-                    ret = cast(dict_funcoes[nome.lower()], c_void_p).value
-                    return ret
-                except Exception as e:
-                    return cast(0, c_void_p).value
-            dict_funcoes = {
-                'alocarbuffer': WINFUNCTYPE(c_wchar_p, c_wchar_p)(_alocar_buffer),
-                'obterfuncao': WINFUNCTYPE(c_void_p, c_wchar_p)(_obter_funcao)
-            }
-            plugin.AtribuirObtencaoDeFuncoes(cast(dict_funcoes['obterfuncao'], c_void_p))
-            plugin.ObterVersao.restype = c_wchar_p
-
-            if getattr(plugin, 'ObterDadosLicenca', None) is None:
-                raise SemLicencaException(
-                    f'Função ObterDadosLicenca não encontrada no plugin\n {a}'
-                )
-            plugin.ObterDadosLicenca.restype = c_wchar_p
-            dados_licenca = plugin.ObterDadosLicenca(cast('', c_wchar_p))
-            _validar_dados_licenca(dados_licenca, a)
-
-            with warnings.catch_warnings():
-                warnings.simplefilter('ignore')
-                versao = plugin.ObterVersao()
-            print(f'===> Versão extraída de {os.path.split(a)[1]}: {versao}')
-            return __split_versao(versao)
-    except SemLicencaException:
-        raise
-    except:
-        pass
-
-
-def __obter_versao_plugin_clr(nome_extensao):
-    try:
-        import clr
-    except:
-        return
-
-    # Obtenho a versão do binário CLR, se existir
-    try:
-        for a in glob.glob(obter_caminho_client(nome_extensao) + r'\*.dll'):
-            cam, nome = os.path.split(a)
-            sem_ext = os.path.splitext(nome)[0]
-            namespace = ''.join(sem_ext.split('.'))
-            if os.path.exists(os.path.join(cam, namespace)):
-                putsc(f"Você não pode ter uma pasta de nome {namespace} dentro de")
-                putsc(f"sua pasta do {nome} pois impede a carga do mesmo!")
-                exit(-1)
-
-            if nome.lower().startswith('plugin.'):
-                versao = None
-                try:
-                    sys.path.append(cam)
-                    clr.AddReference(sem_ext)
-                    modulo = __import__(namespace)
-                    plugin = modulo.Plugin
-                    versao = str(plugin.ObterVersao())
-
-                    if getattr(plugin, 'ObterDadosLicenca', None) is None:
-                        raise SemLicencaException(
-                            f'Função ObterDadosLicenca não encontrada no plugin\n{a}'
-                        )
-                    dados_licenca = plugin.ObterDadosLicenca('')
-                    _validar_dados_licenca(dados_licenca, a)
-
-                    print(f'===> Versão extraída de {nome}: {versao}')
-                except Exception as e:
-                    from System.Reflection import Assembly
-                    try:
-                        versao = str(Assembly.LoadFile(a).GetName().Version.ToString())
-                        print(f'===> Versão extraída de {nome}*(assembly): {versao}')
-                        putsc(
-                            f'Não foi possível obter a versão do plugin de '
-                            f'{namespace}.Plugin.ObterVersao()')
-                        putsc(
-                            f'Versão {versao} do assembly utilizada')
-                    except:
-                        pass
-                if versao:
-                    return __split_versao(versao)
-    except SemLicencaException:
-        raise
-    except:
-        pass
 
 
 def __obter_versao_ini(nome_extensao):
@@ -845,9 +733,7 @@ def __ler_versaoinfo(nome_extensao, develop, build_number=None):
     if type(develop) == str:
         develop = develop.lower() in ['true', '1', 'T']
 
-    itens = __obter_versao_plugin_clr(nome_extensao) or \
-            __obter_versao_plugin_col(nome_extensao) or \
-            __obter_versao_ini(nome_extensao)
+    itens = __obter_versao_ini(nome_extensao)
 
     if itens:
         if build_number is not None:
@@ -859,24 +745,28 @@ def __ler_versaoinfo(nome_extensao, develop, build_number=None):
     return itens
 
 
-def __gerar_versoes_py(nome_extensao, versaoinfo):
+def __gerar_versoes_py(pasta_src, versaoinfo):
+    versao_py = os.path.join(pasta_src, 'versao.py')
+
+    if not os.path.exists(versao_py):
+        puts(f'Gerando versao.py na pasta: {pasta_src}')
+        shutil.copy2(_abs('_templates\\python\\versao.py'), versao_py)
+
     try:
         contents = "MajorVersion = {majorversion}\n" \
                    "MinorVersion = {minorversion}\n" \
                    "Release = {release}\n".format(**versaoinfo)
-        with open(obter_caminho_extensao(nome_extensao + r'\__version__.py'), 'w') as out:
+        with open(os.path.join(pasta_src, r'__version__.py'), 'w') as out:
             out.write(contents)
 
-        contents = "Build = {build}\nDevelop = {develop}\n".format(
-            **versaoinfo
-        )
-        with open(obter_caminho_extensao(nome_extensao + r'\__build__.py'), 'w') as out:
+        contents = "Build = {build}\n" \
+                   "Develop = {develop}\n".format(**versaoinfo)
+        with open(os.path.join(pasta_src, r'__build__.py'), 'w') as out:
             out.write(contents)
     except Exception as e:
-        puts('Falha ao gerar informacao de versão para o plugin Python: ' + e)
+        puts('Falha ao gerar informacao de versão para Python: ' + e)
 
 
-@task
 def empacotar_scripts(nome_extensao):
     """
     Gera os scripts para a extensão.
@@ -938,10 +828,10 @@ def instalar_innosetup():
 
 @task(default=True)
 def ajuda(comando=None):
-    '''
+    """
     Exibe a ajuda para um comando "fab ajuda:nome".
     * comando: Nome do comando
-    '''
+    """
     if comando is None:
         show_commands(__doc__, 'normal')
     else:
