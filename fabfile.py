@@ -510,7 +510,8 @@ def _validar_plugin_py(caminho):
 @task
 def py_alterar_versao(nome_extensao, pasta_src='src', develop=True, build_number=None):
     """
-    Ajusta um arquivo versao.py com base no versao.txt
+    Altera os arquivos de versionamento Python para a versão utilizada no versao.txt.
+    Os arquivos modificados/gerados são versao.py, __version__.py e __build__.py.
 
     :param nome_extensao: Nome da extensão
     :param pasta_src: Subpasta com os fontes, default: 'src'
