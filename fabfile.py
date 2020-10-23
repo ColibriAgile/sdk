@@ -441,9 +441,10 @@ def _preparar_extensao(caminhodest, tipo_ext, nome, produto, nome_exibicao, nome
         if not os.path.exists(dest):
             shutil.copytree(_abs('_templates\\client'), dest)
     if python:
-        os.mkdir(os.path.join(caminhodest, '..\\src'))
+        versao_py = os.path.join(caminhodest, '..\\src\\versao.py')
+        _makedirs(versao_py)
         shutil.copy2(_abs('_templates\\python\\versao.py'),
-                     os.path.join(caminhodest, '..\\src\\versao.py'))
+                     versao_py)
         shutil.copy2(_abs('_templates\\python\\__init__.py'),
                      os.path.join(caminhodest, '..\\src\\__init__.py'))
     shutil.copy2(_abs('_templates\\versao.ini'),
