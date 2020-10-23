@@ -397,7 +397,8 @@ def preparar_extensao(nome_extensao):
     if tipo_ext != 'S':
         python = input(
             'É uma extensão do tipo plugin em Python? (S/N)\n'
-            'Isso irá criar o arquivo versao.py, necessário para a geração automática da versão\n'
+            'Isso irá criar o arquivo versao.py na pasta src, '
+            'necessário para a geração automática da versão\n'
             'baseada no conteúdo de versao.ini\n'
             'Default: N\n>'
         ).upper() == 'S'
@@ -440,10 +441,11 @@ def _preparar_extensao(caminhodest, tipo_ext, nome, produto, nome_exibicao, nome
         if not os.path.exists(dest):
             shutil.copytree(_abs('_templates\\client'), dest)
     if python:
+        os.mkdir(os.path.join(caminhodest, '..\\src'))
         shutil.copy2(_abs('_templates\\python\\versao.py'),
-                     os.path.join(caminhodest, '..\\versao.py'))
+                     os.path.join(caminhodest, '..\\src\\versao.py'))
         shutil.copy2(_abs('_templates\\python\\__init__.py'),
-                     os.path.join(caminhodest, '..\\__init__.py'))
+                     os.path.join(caminhodest, '..\\src\\__init__.py'))
     shutil.copy2(_abs('_templates\\versao.ini'),
                  os.path.join(caminhodest, '..\\versao.ini'))
     # Grava o manifesto.server
@@ -462,12 +464,16 @@ def _preparar_extensao(caminhodest, tipo_ext, nome, produto, nome_exibicao, nome
         json.dump(manifesto, ma, indent=2)
 
 
-def obter_caminho_client(nome_extensao):
+def obter_subpasta_extensao(nome_extensao, subpasta):
     caminhodest = obter_caminho_extensao(nome_extensao)
-    client = os.path.join(caminhodest, 'client')
+    client = os.path.join(caminhodest, subpasta)
     if os.path.exists(client):
         return client
     return caminhodest
+
+
+def obter_caminho_client(nome_extensao):
+    return obter_subpasta_extensao(nome_extensao, 'client')
 
 
 def _validar_plugin_py(caminho):
@@ -502,41 +508,74 @@ def _validar_plugin_py(caminho):
 
 
 @task
-def empacotar_plugin_py(nome_extensao):
+def ajustar_versao_py(nome_extensao, pasta_src='src', develop=True, build_number=None):
+    """
+    Ajusta um arquivo versao.py com base no versao.txt
+
+    :param nome_extensao: Nome da extensão
+    :param pasta_src: Subpasta com os fontes, default: 'src'
+    :param develop: Versão develop, default True
+    :param build_number: Número do build
+    """
+    try:
+        versaoinfo = __ler_versaoinfo(nome_extensao, develop=develop, build_number=build_number)
+        if versaoinfo is None:
+            exit(1)
+        puts('Versão obtida{majorversion}.{minorversion}.{release}.{build}'.format(**versaoinfo))
+        caminho = obter_subpasta_extensao(nome_extensao, pasta_src)
+        # É um plugin em python? Entao eu devo gerar as versões do plugin
+        if os.path.exists(obter_caminho_extensao(os.path.join(caminho , 'versao.py'))):
+            __gerar_versoes_py(caminho, versaoinfo)
+    except SemLicencaException as e:
+        puts(80 * '-')
+        puts(str(e))
+        puts(80 * '-')
+        exit(1)
+
+
+@task
+def empacotar_plugin_py(nome_extensao, pasta_plugin='src', caminho_destino='client', develop=True, build_number=None):
     """
     Empacotar plugin Python em um arquivo COP.
 
     Gera o arquivo 'cop' com o plugin empacotado em um arquivo cop para uso do Colibri.
-    * nome_extensao: Corresponde ao nome da extensão localizada em sua pasta de projetos.
+    :param nome_extensao: Corresponde ao nome da extensão localizada em sua pasta de projetos.
+    :param pasta_plugin: Subpasta com os fontes do plugin, default 'src'
+    :param caminho_destino: Subpasta de destino para o empacotamento. Default 'client'
+    :param develop: Indica um plugin ainda em desenvolvimento. Default True
+    :param build_number: Usado no ajuste da versão do plugin (combinado com o versao.ini)
     """
-    ext_pluginpy = '.cop'
-    caminho = obter_caminho_extensao(nome_extensao)
-    caminhodest = obter_caminho_client(nome_extensao)
 
-    _validar_plugin_py(caminho)
+    ext_pluginpy = '.cop'
+    caminho_fontes = obter_subpasta_extensao(nome_extensao, pasta_plugin)
+    caminho_destino = obter_subpasta_extensao(nome_extensao, caminho_destino)
+
+    _validar_plugin_py(caminho_fontes)
+    ajustar_versao_py(nome_extensao, pasta_plugin, develop=develop, build_number=build_number)
     # Removo os arquivos compilados da origem (*.pyo, *.pyc)
-    for root, dirnames, filenames in os.walk(caminho):
+    for root, dirnames, filenames in os.walk(caminho_fontes):
         for filename in fnmatch.filter(filenames, '*.py?'):
             arq = os.path.join(root, filename)
             os.unlink(arq)
 
     # Compilo os pythons, isso dá eficiência pois o pacote já terá bytecodes
-    compileall.compile_dir(caminho, ddir='.' + nome_extensao, force=True)
+    compileall.compile_dir(caminho_fontes, ddir='.' + nome_extensao, force=True)
     # Apago os arquivos .cop do diretório de destino do plugin
-    for arq in glob.glob(os.path.join(caminhodest, '*.cop')):
+    for arq in glob.glob(os.path.join(caminho_destino, '*.cop')):
         os.unlink(arq)
     # Agora gero o zip com o diretório dentro referente a este pacote
     zipdest = os.path.join(
-        caminhodest, 'plugin.' + nome_extensao.lower() + ext_pluginpy)
+        caminho_destino, 'plugin.' + nome_extensao.lower() + ext_pluginpy)
     print('Gerando: ' + zipdest)
     with zipfile.ZipFile(zipdest, "w") as arqzip:
-        for root, dirnames, filenames in os.walk(caminho):
+        for root, dirnames, filenames in os.walk(caminho_fontes):
             for filename in fnmatch.filter(filenames, '*.py*'):
                 arq = os.path.join(root, filename)
-                dest = nome_extensao + '\\' + arq[len(caminho):]
+                dest = nome_extensao + '\\' + arq[len(caminho_fontes):]
                 arqzip.write(arq, dest)
 
 
+@task
 def compilar_inno(nome_extensao, versao):
     """
     Compila o inno setup para a extensão.
@@ -553,7 +592,6 @@ def compilar_inno(nome_extensao, versao):
         os.unlink(f)
 
     try:
-
         with open(
                 obter_caminho_extensao(
                     nome_extensao + '\\_build\\pacote\\manifesto.server'
@@ -591,6 +629,8 @@ def compilar_inno(nome_extensao, versao):
              "instalado no path e eh a versao unicode.")
         raise
 
+
+@task
 def gerar_cmpkg(nome_extensao, versao, develop=True):
     """
     Gera um pacote cmpkg para a extensão.
@@ -659,10 +699,6 @@ def _empacotar(nome_extensao, develop, build_number):
         if versaoinfo is None:
             exit(1)
         versao = '{majorversion}.{minorversion}.{release}.{build}'.format(**versaoinfo)
-        # É um plugin em python? Entao eu devo gerar as versões do plugin
-        if os.path.exists(obter_caminho_extensao(nome_extensao + '\\versao.py')):
-            __gerar_versoes_py(nome_extensao, versaoinfo)
-            empacotar_plugin_py(nome_extensao)
     except SemLicencaException as e:
         puts(80 * '-')
         puts(str(e))
@@ -799,11 +835,11 @@ def __obter_versao_ini(nome_extensao):
     print(f'===> Não foi possível obter a versão do "versao.ini"')
 
 
-def __ler_versaoinfo(nome_extensao, develop, build):
+def __ler_versaoinfo(nome_extensao, develop, build_number=None):
     try:
-        build = int(build)
+        build_number = int(build_number)
     except:
-        build = 0
+        build_number = 0
 
     if type(develop) == str:
         develop = develop.lower() in ['true', '1', 'T']
@@ -813,11 +849,12 @@ def __ler_versaoinfo(nome_extensao, develop, build):
             __obter_versao_ini(nome_extensao)
 
     if itens:
-        if build is not None:
-            itens['build'] = build
+        if build_number is not None:
+            itens['build'] = build_number
         elif itens.get('build') in [None, '*']:
             itens['build'] = 0
-        itens['develop'] = develop
+        if develop is not None:
+            itens['develop'] = develop
     return itens
 
 
